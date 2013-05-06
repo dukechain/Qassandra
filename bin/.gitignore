@@ -1,1 +1,11 @@
+/README.txt
+/cassandra-env.sh
+/cassandra-rackdc.properties
+/cassandra-topology.properties
+/cassandra-topology.yaml
+/cassandra.yaml
+/cassandra.yaml~
+/commitlog_archiving.properties
+/cqlshrc.sample
+/log4j-server.properties
 /org
