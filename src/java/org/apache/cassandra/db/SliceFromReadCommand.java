@@ -51,6 +51,14 @@ public class SliceFromReadCommand extends ReadCommand
         super(table, key, cfName, Type.GET_SLICES);
         this.filter = filter;
     }
+    
+    //chen add
+    public SliceFromReadCommand(String table, ByteBuffer key, String cfName, SliceQueryFilter filter,
+            long tardiness_deadline, long staleness_deadline)
+    {
+        super(table, key, cfName, Type.GET_SLICES, tardiness_deadline, staleness_deadline);
+        this.filter = filter;
+    }
 
     public ReadCommand copy()
     {

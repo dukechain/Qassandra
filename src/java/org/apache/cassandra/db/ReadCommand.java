@@ -22,6 +22,7 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
+import org.antlr.grammar.v3.ANTLRv3Parser.finallyClause_return;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.config.DatabaseDescriptor;
 import org.apache.cassandra.config.Schema;
@@ -67,6 +68,10 @@ public abstract class ReadCommand implements IReadCommand
     public final ByteBuffer key;
     private boolean isDigestQuery = false;
     protected final Type commandType;
+    
+    // chen add
+    public long tardiness_deadline;
+    public long staleness_deadline;
 
     protected ReadCommand(String table, ByteBuffer key, String cfName, Type cmdType)
     {
@@ -75,6 +80,19 @@ public abstract class ReadCommand implements IReadCommand
         this.cfName = cfName;
         this.commandType = cmdType;
     }
+    
+    // chen add
+    protected ReadCommand(String table, ByteBuffer key, String cfName, Type cmdType,
+            long tardiness_deadline, long staleness_deadline)
+    {
+        this.table = table;
+        this.key = key;
+        this.cfName = cfName;
+        this.commandType = cmdType;
+        
+        this.tardiness_deadline = tardiness_deadline;
+        this.staleness_deadline = staleness_deadline;
+    }
 
     public static ReadCommand create(String table, ByteBuffer key, String cfName, IDiskAtomFilter filter)
     {
@@ -82,6 +100,18 @@ public abstract class ReadCommand implements IReadCommand
             return new SliceFromReadCommand(table, key, cfName, (SliceQueryFilter)filter);
         else
             return new SliceByNamesReadCommand(table, key, cfName, (NamesQueryFilter)filter);
+    }
+    
+    //chen add
+    public static ReadCommand create(String table, ByteBuffer key, String cfName, IDiskAtomFilter filter,
+            long tardiness_deadline, long stalenss_deadline)
+    {
+        if (filter instanceof SliceQueryFilter)
+            return new SliceFromReadCommand(table, key, cfName, (SliceQueryFilter)filter, 
+                    tardiness_deadline, stalenss_deadline);
+        else
+            return new SliceByNamesReadCommand(table, key, cfName, (NamesQueryFilter)filter,
+                    tardiness_deadline, stalenss_deadline);
     }
 
     public boolean isDigestQuery()

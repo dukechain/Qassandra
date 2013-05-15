@@ -485,6 +485,51 @@ public class CassandraServer implements Cassandra.Iface
         assert tcolumns.size() == 1;
         return tcolumns.get(0);
     }
+    
+    private ColumnOrSuperColumn internal_get(ByteBuffer key, ColumnPath column_path, ConsistencyLevel consistency_level,
+            long tardiness_deadline, long staleness_deadline)
+    throws RequestValidationException, NotFoundException, UnavailableException, TimedOutException
+    {
+        ThriftClientState cState = state();
+        String keyspace = cState.getKeyspace();
+        cState.hasColumnFamilyAccess(keyspace, column_path.column_family, Permission.SELECT);
+
+        CFMetaData metadata = ThriftValidation.validateColumnFamily(keyspace, column_path.column_family);
+        ThriftValidation.validateColumnPath(metadata, column_path);
+        org.apache.cassandra.db.ConsistencyLevel consistencyLevel = ThriftConversion.fromThrift(consistency_level);
+        consistencyLevel.validateForRead(keyspace);
+
+        ThriftValidation.validateKey(metadata, key);
+
+        IDiskAtomFilter filter;
+        if (metadata.isSuper())
+        {
+            CompositeType type = (CompositeType)metadata.comparator;
+            SortedSet names = new TreeSet<ByteBuffer>(column_path.column == null ? type.types.get(0) : type.types.get(1));
+            names.add(column_path.column == null ? column_path.super_column : column_path.column);
+            filter = SuperColumns.fromSCNamesFilter(type, column_path.column == null ? null : column_path.bufferForSuper_column(), new NamesQueryFilter(names));
+        }
+        else
+        {
+            SortedSet<ByteBuffer> names = new TreeSet<ByteBuffer>(metadata.comparator);
+            names.add(column_path.column);
+            filter = new NamesQueryFilter(names);
+        }
+
+        ReadCommand command = ReadCommand.create(keyspace, key, column_path.column_family, filter);
+
+        Map<DecoratedKey, ColumnFamily> cfamilies = readColumnFamily(Arrays.asList(command), consistencyLevel);
+
+        ColumnFamily cf = cfamilies.get(StorageService.getPartitioner().decorateKey(command.key));
+
+        if (cf == null)
+            throw new NotFoundException();
+        List<ColumnOrSuperColumn> tcolumns = thriftifyColumnFamily(cf, metadata.isSuper() && column_path.column != null, false);
+        if (tcolumns.isEmpty())
+            throw new NotFoundException();
+        assert tcolumns.size() == 1;
+        return tcolumns.get(0);
+    }
 
     public ColumnOrSuperColumn get(ByteBuffer key, ColumnPath column_path, ConsistencyLevel consistency_level)
     throws InvalidRequestException, NotFoundException, UnavailableException, TimedOutException
@@ -504,6 +549,50 @@ public class CassandraServer implements Cassandra.Iface
         try
         {
             return internal_get(key, column_path, consistency_level);
+        }
+        catch (RequestValidationException e)
+        {
+            throw ThriftConversion.toThrift(e);
+        }
+        finally
+        {
+            Tracing.instance().stopSession();
+        }
+    }
+    
+    /**
+     * 
+     * add API parameters
+     * @param key
+     * @param column_path
+     * @param consistency_level
+     * @param tardiness_deadline
+     * @param staleness_deadline
+     * @return
+     * @throws InvalidRequestException
+     * @throws NotFoundException
+     * @throws UnavailableException
+     * @throws TimedOutException
+     */
+    public ColumnOrSuperColumn get(ByteBuffer key, ColumnPath column_path, ConsistencyLevel consistency_level,
+            long tardiness_deadline, long staleness_deadline)
+    throws InvalidRequestException, NotFoundException, UnavailableException, TimedOutException
+    {
+        if (startSessionIfRequested())
+        {
+            Map<String, String> traceParameters = ImmutableMap.of("key", ByteBufferUtil.bytesToHex(key),
+                                                                  "column_path", column_path.toString(),
+                                                                  "consistency_level", consistency_level.name());
+            Tracing.instance().begin("get", traceParameters);
+        }
+        else
+        {
+            logger.debug("get");
+        }
+
+        try
+        {
+            return internal_get(key, column_path, consistency_level, tardiness_deadline, staleness_deadline);
         }
         catch (RequestValidationException e)
         {
