@@ -516,7 +516,8 @@ public class CassandraServer implements Cassandra.Iface
             filter = new NamesQueryFilter(names);
         }
 
-        ReadCommand command = ReadCommand.create(keyspace, key, column_path.column_family, filter);
+        ReadCommand command = ReadCommand.create(keyspace, key, column_path.column_family, filter,
+                tardiness_deadline, staleness_deadline);
 
         Map<DecoratedKey, ColumnFamily> cfamilies = readColumnFamily(Arrays.asList(command), consistencyLevel);
 

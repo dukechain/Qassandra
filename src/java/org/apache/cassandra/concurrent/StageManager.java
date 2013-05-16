@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import org.apache.cassandra.net.MessagingService;
 import org.apache.cassandra.utils.FBUtilities;
+import org.apache.commons.lang.mutable.Mutable;
 
 import static org.apache.cassandra.config.DatabaseDescriptor.*;
 
@@ -46,8 +47,13 @@ public class StageManager
 
     static
     {
-        stages.put(Stage.MUTATION, multiThreadedConfigurableStage(Stage.MUTATION, getConcurrentWriters()));
-        stages.put(Stage.READ, multiThreadedConfigurableStage(Stage.READ, getConcurrentReaders()));
+        // chen modify here to let mutation and read be in the same executor
+        ThreadPoolExecutor tPE_mixtureExecutor = multiThreaded_mutilType_ConfigurableStage(Stage.READ, 
+                getConcurrentReaders()+getConcurrentWriters());
+//        stages.put(Stage.MUTATION, multiThreadedConfigurableStage(Stage.MUTATION, getConcurrentWriters()));
+//        stages.put(Stage.READ, multiThreadedConfigurableStage(Stage.READ, getConcurrentReaders()));
+        stages.put(Stage.MUTATION, tPE_mixtureExecutor);
+        stages.put(Stage.READ, tPE_mixtureExecutor);
         stages.put(Stage.REQUEST_RESPONSE, multiThreadedStage(Stage.REQUEST_RESPONSE, FBUtilities.getAvailableProcessors()));
         stages.put(Stage.INTERNAL_RESPONSE, multiThreadedStage(Stage.INTERNAL_RESPONSE, FBUtilities.getAvailableProcessors()));
         stages.put(Stage.REPLICATE_ON_WRITE, multiThreadedConfigurableStage(Stage.REPLICATE_ON_WRITE, getConcurrentReplicators(), MAX_REPLICATE_ON_WRITE_TASKS));
@@ -86,6 +92,17 @@ public class StageManager
                                                 new LinkedBlockingQueue<Runnable>(),
                                                 new NamedThreadFactory(stage.getJmxName()),
                                                 stage.getJmxType());
+    }
+    
+    //chen add
+    private static ThreadPoolExecutor multiThreaded_mutilType_ConfigurableStage(Stage stage, int numThreads)
+    {
+        return new Chen_JMXConfigurableThreadPoolExecutor(numThreads,
+                                                     KEEPALIVE,
+                                                     TimeUnit.SECONDS,
+                                                     new PriorityBlockingQueue<Runnable>(),
+                                                     new NamedThreadFactory(stage.getJmxName()),
+                                                     stage.getJmxType());
     }
 
     private static ThreadPoolExecutor multiThreadedConfigurableStage(Stage stage, int numThreads)

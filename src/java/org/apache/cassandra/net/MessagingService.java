@@ -40,6 +40,7 @@ import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.cassandra.cli.CliParser.newColumnFamily_return;
 import org.apache.cassandra.concurrent.DebuggableThreadPoolExecutor;
 import org.apache.cassandra.concurrent.Stage;
 import org.apache.cassandra.concurrent.StageManager;
@@ -713,6 +714,7 @@ public final class MessagingService implements MessagingServiceMBean
         }
     }
 
+    // chen modify
     public void receive(MessageIn message, int id, long timestamp)
     {
         Tracing.instance().initializeFromMessage(message);
@@ -722,7 +724,20 @@ public final class MessagingService implements MessagingServiceMBean
         if (message == null)
             return;
 
-        Runnable runnable = new MessageDeliveryTask(message, id, timestamp);
+        //Runnable runnable = new MessageDeliveryTask(message, id, timestamp);
+        
+        //chen add..........
+        Runnable runnable;
+        if (message.verb == Verb.MUTATION || 
+                message.verb == Verb.READ)
+        {
+            runnable = new Chen_MessageDeliveryTask(message, id, timestamp);
+        }
+        else {
+            runnable = new MessageDeliveryTask(message, id, timestamp);
+        }
+        //...............
+        
         ExecutorService stage = StageManager.getStage(message.getMessageType());
         assert stage != null : "No stage for message type " + message.verb;
 
