@@ -17,13 +17,12 @@
  */
 package org.apache.cassandra.net;
 
-import java.awt.TrayIcon.MessageType;
+
 
 import org.apache.cassandra.concurrent.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import antlr.ByteBuffer;
 
 public class Chen_MessageDeliveryTask implements Runnable, Comparable<Chen_MessageDeliveryTask>
 {
@@ -126,4 +125,13 @@ public class Chen_MessageDeliveryTask implements Runnable, Comparable<Chen_Messa
     public MessageIn getMessage() {
         return message;
     }
+    
+    public void setPriority(long priority) {
+        this.priority = priority;
+    }
+    
+    public long getconstructionTime() {
+        return constructionTime;
+    }
+    
 }
