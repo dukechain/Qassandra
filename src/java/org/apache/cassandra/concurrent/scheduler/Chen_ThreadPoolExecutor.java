@@ -21,8 +21,10 @@ import java.util.concurrent.locks.*;
 import java.util.*;
 
 
+import org.apache.cassandra.concurrent.scheduler.policy.Policy;
 import org.apache.cassandra.db.RowMutation;
 import org.apache.cassandra.net.Chen_MessageDeliveryTask;
+import org.apache.cassandra.net.MessagingService;
 
 
 /**
@@ -383,6 +385,8 @@ public class Chen_ThreadPoolExecutor extends AbstractExecutorService {
     //chen add
     private final ConcurrentHashMap<ByteBuffer, Runnable> writeHashMap = 
             new ConcurrentHashMap<ByteBuffer, Runnable>();
+    
+    private final Policy priority_calculate;
 
     /**
      * Lock held on updates to poolSize, corePoolSize,
@@ -500,9 +504,11 @@ public class Chen_ThreadPoolExecutor extends AbstractExecutorService {
                               long keepAliveTime,
                               TimeUnit unit,
                               BlockingQueue<Runnable> workQueue,
-                              BlockingQueue<Runnable> writeQueue) {
+                              BlockingQueue<Runnable> writeQueue,
+                              Policy priority_calculate) {
         this(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue,
-             Executors.defaultThreadFactory(), defaultHandler, writeQueue);
+             Executors.defaultThreadFactory(), defaultHandler, writeQueue, 
+             priority_calculate);
     }
 
     /**
@@ -535,9 +541,10 @@ public class Chen_ThreadPoolExecutor extends AbstractExecutorService {
                               TimeUnit unit,
                               BlockingQueue<Runnable> workQueue,
                               ThreadFactory threadFactory,
-                              BlockingQueue<Runnable> writeQueue) {
+                              BlockingQueue<Runnable> writeQueue,
+                              Policy priority_calculate) {
         this(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue,
-             threadFactory, defaultHandler, writeQueue);
+             threadFactory, defaultHandler, writeQueue, priority_calculate);
     }
 
     /**
@@ -570,10 +577,12 @@ public class Chen_ThreadPoolExecutor extends AbstractExecutorService {
                               TimeUnit unit,
                               BlockingQueue<Runnable> workQueue,
                               Chen_RejectedExecutionHandler handler,
-                              BlockingQueue<Runnable> writeQueue) {
+                              BlockingQueue<Runnable> writeQueue,
+                              Policy priority_calculate) {
         this(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue,
-             Executors.defaultThreadFactory(), handler, writeQueue);
+             Executors.defaultThreadFactory(), handler, writeQueue, priority_calculate);
     }
+    
 
     /**
      * Creates a new <tt>ThreadPoolExecutor</tt> with the given initial
@@ -608,7 +617,8 @@ public class Chen_ThreadPoolExecutor extends AbstractExecutorService {
                               BlockingQueue<Runnable> workQueue,
                               ThreadFactory threadFactory,
                               Chen_RejectedExecutionHandler handler,
-                              BlockingQueue<Runnable> writeQueue) {
+                              BlockingQueue<Runnable> writeQueue,
+                              Policy priority_calculate) {
         if (corePoolSize < 0 ||
             maximumPoolSize <= 0 ||
             maximumPoolSize < corePoolSize ||
@@ -624,6 +634,7 @@ public class Chen_ThreadPoolExecutor extends AbstractExecutorService {
         this.handler = handler;
         
         this.writeQueue = writeQueue;
+        this.priority_calculate = priority_calculate;
     }
 
     /*
@@ -676,7 +687,7 @@ public class Chen_ThreadPoolExecutor extends AbstractExecutorService {
      * @throws NullPointerException if command is null
      */
     public void execute(Runnable command) {
-        if (command == null)
+        /*if (command == null)
             throw new NullPointerException();
         if (poolSize >= corePoolSize || !addIfUnderCorePoolSize(command)) {
             if (runState == RUNNING && workQueue.offer(command)) {
@@ -685,8 +696,42 @@ public class Chen_ThreadPoolExecutor extends AbstractExecutorService {
             }
             else if (!addIfUnderMaximumPoolSize(command))
                 reject(command); // is shutdown or saturated
+        }*/
+        
+        if (command == null)
+            throw new NullPointerException();
+        
+        Chen_MessageDeliveryTask task = (Chen_MessageDeliveryTask) command;
+        
+        if (task.getMessageType() == MessagingService.Verb.READ)
+        {   // read
+            
+            priority_calculate.setReadPriority(task);
+            
+            if (poolSize >= corePoolSize || !addIfUnderCorePoolSize(task)) {
+                if (runState == RUNNING && workQueue.offer(task)) {
+                    if (runState != RUNNING || poolSize == 0)
+                        ensureQueuedTaskHandled(task);
+                }
+                else if (!addIfUnderMaximumPoolSize(task))
+                    reject(task); // is shutdown or saturated
+            }
         }
+        else {
+            // write
+            setWritePriority(task);
+            
+            writeQueue.offer(task);
+        }
+        
     }
+
+    protected void setWritePriority(Chen_MessageDeliveryTask task)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
 
     /**
      * Creates and returns a new thread running firstTask as its first
