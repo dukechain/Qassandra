@@ -1,15 +1,15 @@
-package org.apache.cassandra.concurrent;
+package org.apache.cassandra.concurrent.scheduler.TPE;
 
-import java.util.Iterator;
+
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.ReentrantLock;
 
-import org.apache.cassandra.net.MessageDeliveryTask;
-import org.junit.internal.runners.statements.RunAfters;
 
-public class Chen_JMXConfigurableThreadPoolExecutor extends JMXEnabledThreadPoolExecutor implements JMXConfigurableThreadPoolExecutorMBean
+import org.apache.cassandra.concurrent.JMXConfigurableThreadPoolExecutorMBean;
+import org.apache.cassandra.concurrent.NamedThreadFactory;
+
+
+public class Chen_JMXConfigurableThreadPoolExecutor extends Chen_JMXEnabledThreadPoolExecutor implements JMXConfigurableThreadPoolExecutorMBean
 {
     public Chen_JMXConfigurableThreadPoolExecutor(int corePoolSize,
             long keepAliveTime,

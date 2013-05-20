@@ -28,7 +28,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class NamedThreadFactory implements ThreadFactory
 {
-    protected final String id;
+    //protected final String id;
+    public final String id;
     private final int priority;
     protected final AtomicInteger n = new AtomicInteger(1);
 

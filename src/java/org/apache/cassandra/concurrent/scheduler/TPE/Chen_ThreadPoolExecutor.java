@@ -1,4 +1,4 @@
-package org.apache.cassandra.concurrent.scheduler;
+package org.apache.cassandra.concurrent.scheduler.TPE;
 /*
  * %W% %E%
  *
@@ -16,6 +16,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.*;
 import java.util.*;
@@ -308,7 +309,7 @@ import org.apache.cassandra.net.MessagingService;
  * @since 1.5
  * @author Doug Lea
  */
-public class Chen_ThreadPoolExecutor extends AbstractExecutorService {
+public class Chen_ThreadPoolExecutor extends ThreadPoolExecutor {
 
     /**
      * Permission for checking shutdown
@@ -441,7 +442,7 @@ public class Chen_ThreadPoolExecutor extends AbstractExecutorService {
     /**
      * Handler called when saturated or shutdown in execute.
      */
-    private volatile Chen_RejectedExecutionHandler handler;
+    private volatile RejectedExecutionHandler handler;
 
     /**
      * Factory for new threads. All threads are created using this
@@ -471,7 +472,7 @@ public class Chen_ThreadPoolExecutor extends AbstractExecutorService {
     /**
      * The default rejected execution handler
      */
-    private static final Chen_RejectedExecutionHandler defaultHandler =
+    private static final RejectedExecutionHandler defaultHandler =
         new AbortPolicy();
 
     // Constructors
@@ -576,7 +577,7 @@ public class Chen_ThreadPoolExecutor extends AbstractExecutorService {
                               long keepAliveTime,
                               TimeUnit unit,
                               BlockingQueue<Runnable> workQueue,
-                              Chen_RejectedExecutionHandler handler,
+                              RejectedExecutionHandler handler,
                               BlockingQueue<Runnable> writeQueue,
                               Policy priority_calculate) {
         this(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue,
@@ -616,9 +617,11 @@ public class Chen_ThreadPoolExecutor extends AbstractExecutorService {
                               TimeUnit unit,
                               BlockingQueue<Runnable> workQueue,
                               ThreadFactory threadFactory,
-                              Chen_RejectedExecutionHandler handler,
+                              RejectedExecutionHandler handler,
                               BlockingQueue<Runnable> writeQueue,
                               Policy priority_calculate) {
+        super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, threadFactory, handler);
+        
         if (corePoolSize < 0 ||
             maximumPoolSize <= 0 ||
             maximumPoolSize < corePoolSize ||
@@ -1381,7 +1384,7 @@ public class Chen_ThreadPoolExecutor extends AbstractExecutorService {
      * @throws NullPointerException if handler is null
      * @see #getRejectedExecutionHandler
      */
-    public void setRejectedExecutionHandler(Chen_RejectedExecutionHandler handler) {
+    public void setRejectedExecutionHandler(RejectedExecutionHandler handler) {
         if (handler == null)
             throw new NullPointerException();
         this.handler = handler;
@@ -1393,7 +1396,7 @@ public class Chen_ThreadPoolExecutor extends AbstractExecutorService {
      * @return the current handler
      * @see #setRejectedExecutionHandler
      */
-    public Chen_RejectedExecutionHandler getRejectedExecutionHandler() {
+    public RejectedExecutionHandler getRejectedExecutionHandler() {
         return handler;
     }
 
@@ -1838,7 +1841,7 @@ public class Chen_ThreadPoolExecutor extends AbstractExecutorService {
      * unless the executor has been shut down, in which case the task
      * is discarded.
      */
-    public static class CallerRunsPolicy implements Chen_RejectedExecutionHandler {
+    public static class CallerRunsPolicy implements RejectedExecutionHandler {
         /**
          * Creates a <tt>CallerRunsPolicy</tt>.
          */
@@ -1850,7 +1853,7 @@ public class Chen_ThreadPoolExecutor extends AbstractExecutorService {
          * @param r the runnable task requested to be executed
          * @param e the executor attempting to execute this task
          */
-        public void rejectedExecution(Runnable r, Chen_ThreadPoolExecutor e) {
+        public void rejectedExecution(Runnable r, ThreadPoolExecutor e) {
             if (!e.isShutdown()) {
                 r.run();
             }
@@ -1861,7 +1864,7 @@ public class Chen_ThreadPoolExecutor extends AbstractExecutorService {
      * A handler for rejected tasks that throws a
      * <tt>RejectedExecutionException</tt>.
      */
-    public static class AbortPolicy implements Chen_RejectedExecutionHandler {
+    public static class AbortPolicy implements RejectedExecutionHandler {
         /**
          * Creates an <tt>AbortPolicy</tt>.
          */
@@ -1873,7 +1876,7 @@ public class Chen_ThreadPoolExecutor extends AbstractExecutorService {
          * @param e the executor attempting to execute this task
          * @throws RejectedExecutionException always.
          */
-        public void rejectedExecution(Runnable r, Chen_ThreadPoolExecutor e) {
+        public void rejectedExecution(Runnable r, ThreadPoolExecutor e) {
             throw new RejectedExecutionException();
         }
     }
@@ -1882,7 +1885,7 @@ public class Chen_ThreadPoolExecutor extends AbstractExecutorService {
      * A handler for rejected tasks that silently discards the
      * rejected task.
      */
-    public static class DiscardPolicy implements Chen_RejectedExecutionHandler {
+    public static class DiscardPolicy implements RejectedExecutionHandler {
         /**
          * Creates a <tt>DiscardPolicy</tt>.
          */
@@ -1893,7 +1896,7 @@ public class Chen_ThreadPoolExecutor extends AbstractExecutorService {
          * @param r the runnable task requested to be executed
          * @param e the executor attempting to execute this task
          */
-        public void rejectedExecution(Runnable r, Chen_ThreadPoolExecutor e) {
+        public void rejectedExecution(Runnable r, ThreadPoolExecutor e) {
         }
     }
 
@@ -1902,7 +1905,7 @@ public class Chen_ThreadPoolExecutor extends AbstractExecutorService {
      * request and then retries <tt>execute</tt>, unless the executor
      * is shut down, in which case the task is discarded.
      */
-    public static class DiscardOldestPolicy implements Chen_RejectedExecutionHandler {
+    public static class DiscardOldestPolicy implements RejectedExecutionHandler {
         /**
          * Creates a <tt>DiscardOldestPolicy</tt> for the given executor.
          */
@@ -1916,7 +1919,7 @@ public class Chen_ThreadPoolExecutor extends AbstractExecutorService {
          * @param r the runnable task requested to be executed
          * @param e the executor attempting to execute this task
          */
-        public void rejectedExecution(Runnable r, Chen_ThreadPoolExecutor e) {
+        public void rejectedExecution(Runnable r, ThreadPoolExecutor e) {
             if (!e.isShutdown()) {
                 e.getQueue().poll();
                 e.execute(r);

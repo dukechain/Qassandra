@@ -23,9 +23,11 @@ import java.util.concurrent.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.cassandra.concurrent.scheduler.TPE.Chen_ThreadPoolExecutor;
+
 import org.apache.cassandra.net.MessagingService;
 import org.apache.cassandra.utils.FBUtilities;
-import org.apache.commons.lang.mutable.Mutable;
+
 
 import static org.apache.cassandra.config.DatabaseDescriptor.*;
 
@@ -48,8 +50,8 @@ public class StageManager
     static
     {
         // chen modify here to let mutation and read be in the same executor
-        ThreadPoolExecutor tPE_mixtureExecutor = multiThreaded_mutilType_ConfigurableStage(Stage.READ, 
-                getConcurrentReaders()+getConcurrentWriters());
+        Chen_ThreadPoolExecutor tPE_mixtureExecutor = multiThreaded_mutilType_ConfigurableStage(Stage.READ, 
+                getConcurrentReaders(), getConcurrentWriters());
 //        stages.put(Stage.MUTATION, multiThreadedConfigurableStage(Stage.MUTATION, getConcurrentWriters()));
 //        stages.put(Stage.READ, multiThreadedConfigurableStage(Stage.READ, getConcurrentReaders()));
         stages.put(Stage.MUTATION, tPE_mixtureExecutor);
@@ -95,14 +97,19 @@ public class StageManager
     }
     
     //chen add
-    private static ThreadPoolExecutor multiThreaded_mutilType_ConfigurableStage(Stage stage, int numThreads)
+    private static Chen_ThreadPoolExecutor multiThreaded_mutilType_ConfigurableStage(Stage stage, 
+            int numRead, int numWrite)
     {
-        return new Chen_JMXConfigurableThreadPoolExecutor(numThreads,
+        /*return new Chen_JMXConfigurableThreadPoolExecutor(numThreads,
                                                      KEEPALIVE,
                                                      TimeUnit.SECONDS,
                                                      new PriorityBlockingQueue<Runnable>(),
                                                      new NamedThreadFactory(stage.getJmxName()),
-                                                     stage.getJmxType());
+                                                     stage.getJmxType());*/
+        /*return new OD_mechanism(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, threadFactory, 
+                handler, writeQueue, priority_calculate);*/
+        
+        return null;
     }
 
     private static ThreadPoolExecutor multiThreadedConfigurableStage(Stage stage, int numThreads)
