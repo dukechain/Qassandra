@@ -23,6 +23,8 @@ import java.util.concurrent.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.cassandra.cli.CliParser.newColumnFamily_return;
+import org.apache.cassandra.concurrent.scheduler.SchedulerFactory;
 import org.apache.cassandra.concurrent.scheduler.TPE.Chen_ThreadPoolExecutor;
 
 import org.apache.cassandra.net.MessagingService;
@@ -51,7 +53,7 @@ public class StageManager
     {
         // chen modify here to let mutation and read be in the same executor
         Chen_ThreadPoolExecutor tPE_mixtureExecutor = multiThreaded_mutilType_ConfigurableStage(Stage.READ, 
-                getConcurrentReaders(), getConcurrentWriters());
+                getConcurrentReaders() + getConcurrentWriters());
 //        stages.put(Stage.MUTATION, multiThreadedConfigurableStage(Stage.MUTATION, getConcurrentWriters()));
 //        stages.put(Stage.READ, multiThreadedConfigurableStage(Stage.READ, getConcurrentReaders()));
         stages.put(Stage.MUTATION, tPE_mixtureExecutor);
@@ -96,9 +98,9 @@ public class StageManager
                                                 stage.getJmxType());
     }
     
-    //chen add
-    private static Chen_ThreadPoolExecutor multiThreaded_mutilType_ConfigurableStage(Stage stage, 
-            int numRead, int numWrite)
+    //chen add. it should be a factory here.
+    private static Chen_ThreadPoolExecutor multiThreaded_mutilType_ConfigurableStage(
+            Stage stage, int numThreads)
     {
         /*return new Chen_JMXConfigurableThreadPoolExecutor(numThreads,
                                                      KEEPALIVE,
@@ -106,10 +108,15 @@ public class StageManager
                                                      new PriorityBlockingQueue<Runnable>(),
                                                      new NamedThreadFactory(stage.getJmxName()),
                                                      stage.getJmxType());*/
-        /*return new OD_mechanism(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, threadFactory, 
-                handler, writeQueue, priority_calculate);*/
-        
-        return null;
+
+        return SchedulerFactory.createScheduler("OD", "FCFS", 
+                numThreads, 
+                KEEPALIVE, 
+                TimeUnit.SECONDS, 
+                new PriorityBlockingQueue<Runnable>(), 
+                new NamedThreadFactory(stage.getJmxName()), 
+                stage.getJmxType(), 
+                new PriorityBlockingQueue<Runnable>());
     }
 
     private static ThreadPoolExecutor multiThreadedConfigurableStage(Stage stage, int numThreads)

@@ -43,7 +43,7 @@ public class Chen_JMXEnabledThreadPoolExecutor extends Chen_DebuggableThreadPool
     private final String mbeanName;
     private final ThreadPoolMetrics metrics;
 
-    public Chen_JMXEnabledThreadPoolExecutor(String threadPoolName)
+    /*public Chen_JMXEnabledThreadPoolExecutor(String threadPoolName)
     {
         this(1, Integer.MAX_VALUE, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), 
                 new NamedThreadFactory(threadPoolName), "internal");
@@ -59,17 +59,19 @@ public class Chen_JMXEnabledThreadPoolExecutor extends Chen_DebuggableThreadPool
     {
         this(1, Integer.MAX_VALUE, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(),
                 new NamedThreadFactory(threadPoolName, priority), "internal");
-    }
+    }*/
 
     public Chen_JMXEnabledThreadPoolExecutor(int corePoolSize,
             long keepAliveTime,
             TimeUnit unit,
             BlockingQueue<Runnable> workQueue,
             NamedThreadFactory threadFactory,
-            String jmxPath)
+            String jmxPath,
+            BlockingQueue<Runnable> writeQueue,
+            Policy priority_calculate)
     {
         this(corePoolSize, corePoolSize, keepAliveTime, unit, 
-                workQueue, threadFactory, jmxPath, null, null);
+                workQueue, threadFactory, jmxPath, writeQueue, priority_calculate);
     }
 
     public Chen_JMXEnabledThreadPoolExecutor(int corePoolSize,
@@ -84,6 +86,7 @@ public class Chen_JMXEnabledThreadPoolExecutor extends Chen_DebuggableThreadPool
     {
         super(corePoolSize, maxPoolSize, keepAliveTime, unit, workQueue, 
                 threadFactory, writeQueue, priority_calculate);
+        
         super.prestartAllCoreThreads();
 
         metrics = new ThreadPoolMetrics(this, jmxPath, threadFactory.id);
@@ -101,11 +104,11 @@ public class Chen_JMXEnabledThreadPoolExecutor extends Chen_DebuggableThreadPool
         }
     }
 
-    public Chen_JMXEnabledThreadPoolExecutor(Stage stage)
+/*    public Chen_JMXEnabledThreadPoolExecutor(Stage stage)
     {
         this(stage.getJmxName(), stage.getJmxType());
     }
-
+*/
     private void unregisterMBean()
     {
         try

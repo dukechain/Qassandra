@@ -2,16 +2,18 @@ package org.apache.cassandra.concurrent.scheduler.TPE;
 
 
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 
 import org.apache.cassandra.concurrent.JMXConfigurableThreadPoolExecutorMBean;
 import org.apache.cassandra.concurrent.NamedThreadFactory;
+import org.apache.cassandra.concurrent.scheduler.policy.Policy;
 
 
 public class Chen_JMXConfigurableThreadPoolExecutor extends Chen_JMXEnabledThreadPoolExecutor implements JMXConfigurableThreadPoolExecutorMBean
 {
-    public Chen_JMXConfigurableThreadPoolExecutor(int corePoolSize,
+    /*public Chen_JMXConfigurableThreadPoolExecutor(int corePoolSize,
             long keepAliveTime,
             TimeUnit unit,
             BlockingQueue<Runnable> workQueue,
@@ -19,39 +21,19 @@ public class Chen_JMXConfigurableThreadPoolExecutor extends Chen_JMXEnabledThrea
             String jmxPath)
     {
         super(corePoolSize, keepAliveTime, unit, workQueue, threadFactory, jmxPath);
-    }
-    
-/*    private boolean isPaused;
-    private ReentrantLock pauseLock = new ReentrantLock();
-    private Condition unpaused = pauseLock.newCondition();
-
-    protected void beforeExecute(Thread t, Runnable r) {
-        super.beforeExecute(t, r);
-        pauseLock.lock();
-        
-        try {
-          while (isPaused) unpaused.await();
-        } catch(InterruptedException ie) {
-          t.interrupt();
-        } finally {
-          pauseLock.unlock();
-        }
     }*/
     
-    /*protected void afterExecute(Runnable r, Throwable t)
+    
+    public Chen_JMXConfigurableThreadPoolExecutor(int corePoolSize,
+            long keepAliveTime,
+            TimeUnit unit,
+            BlockingQueue<Runnable> workQueue,
+            NamedThreadFactory threadFactory,
+            String jmxPath,
+            BlockingQueue<Runnable> writeQueue,
+            Policy priority_calculate)
     {
-        super.afterExecute(r, t);
-        
-        BlockingQueue <Runnable> queue = getQueue();
-        
-        Iterator iter =  queue.iterator();
-        
-        while (iter.hasNext())
-        {
-            MessageDeliveryTask task = (MessageDeliveryTask) iter.next();
-            
-        }
-        
-        
-    }*/
+        super(corePoolSize, keepAliveTime, unit, workQueue, threadFactory, jmxPath,
+                writeQueue, priority_calculate);
+    }
 }

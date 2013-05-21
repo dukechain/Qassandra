@@ -381,13 +381,13 @@ public class Chen_ThreadPoolExecutor extends ThreadPoolExecutor {
     private final BlockingQueue<Runnable> workQueue;
     
     //chen add
-    private final BlockingQueue<Runnable> writeQueue;
+    protected final BlockingQueue<Runnable> writeQueue;
     
     //chen add
     private final ConcurrentHashMap<ByteBuffer, Runnable> writeHashMap = 
             new ConcurrentHashMap<ByteBuffer, Runnable>();
     
-    private final Policy priority_calculate;
+    protected final Policy priority_calculate;
 
     /**
      * Lock held on updates to poolSize, corePoolSize,
