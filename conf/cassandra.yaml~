@@ -675,3 +675,7 @@ inter_dc_tcp_nodelay: false
 # for sequential access. Note: This could be harmful for fat rows, see CASSANDRA-4937
 # for further details on that topic.
 preheat_kernel_page_cache: false
+
+# specify the mechanism among On Demand (OD), Hybrid On Demand (HOD), Freshness/Tardiness (FIT)
+mechanism_type: OD
+policy_type: FCFS
