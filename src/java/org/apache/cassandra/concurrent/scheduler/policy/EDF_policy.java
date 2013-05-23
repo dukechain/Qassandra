@@ -7,13 +7,13 @@ public class EDF_policy implements Policy
 {
 
     @Override
-    public void setReadPriority(Chen_MessageDeliveryTask task)
+    public void setReadPriority(ReadCommand rc)
     {
-        ReadCommand rc = (ReadCommand) task.getMessage().payload;
+        /*ReadCommand rc = (ReadCommand) task.getMessage().payload;
         
         long priority = rc.tardiness_deadline;
         
-        task.setPriority(priority);
+        task.setPriority(priority);*/
     }
 
 }

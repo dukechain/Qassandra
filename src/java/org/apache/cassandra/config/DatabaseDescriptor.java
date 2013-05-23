@@ -50,7 +50,6 @@ import org.apache.cassandra.net.MessagingService;
 import org.apache.cassandra.scheduler.IRequestScheduler;
 import org.apache.cassandra.scheduler.NoScheduler;
 import org.apache.cassandra.service.CacheService;
-import org.apache.cassandra.service.MigrationManager;
 import org.apache.cassandra.utils.FBUtilities;
 
 public class DatabaseDescriptor
@@ -132,6 +131,21 @@ public class DatabaseDescriptor
 
         logger.info("Data files directories: " + Arrays.toString(conf.data_file_directories));
         logger.info("Commit log directory: " + conf.commitlog_directory);
+        
+        /* chen add*/
+        if (!conf.mechanism_type.equals("OD") && !conf.mechanism_type.equals("HOD")
+                && !conf.mechanism_type.equals("FIT"))
+        {
+            throw new ConfigurationException("Error Setting on Mechanism");
+        }
+        
+        if (!conf.policy_type.equals("FCFS") && !conf.policy_type.equals("EDF")
+                && !conf.policy_type.equals("WSJF"))
+        {
+            throw new ConfigurationException("Error Setting on Policy");
+        }
+        
+        /* end */
 
         if (conf.commitlog_sync == null)
         {

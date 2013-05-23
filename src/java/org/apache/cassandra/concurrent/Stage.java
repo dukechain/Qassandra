@@ -29,7 +29,9 @@ public enum Stage
     TRACING,
     INTERNAL_RESPONSE,
     READ_REPAIR,
-    REPLICATE_ON_WRITE;
+    REPLICATE_ON_WRITE,//;
+    
+    READ_MUTATION; // chen add
 
     public String getJmxType()
     {
@@ -47,6 +49,8 @@ public enum Stage
             case REQUEST_RESPONSE:
             case REPLICATE_ON_WRITE:
             case READ_REPAIR:
+            
+            case READ_MUTATION: // chen add
                 return "request";
             default:
                 throw new AssertionError("Unknown stage " + this);

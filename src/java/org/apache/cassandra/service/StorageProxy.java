@@ -36,6 +36,8 @@ import org.slf4j.LoggerFactory;
 
 import org.apache.cassandra.concurrent.Stage;
 import org.apache.cassandra.concurrent.StageManager;
+import org.apache.cassandra.concurrent.scheduler.IsUserOperation;
+import org.apache.cassandra.concurrent.scheduler.RWTask;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.config.DatabaseDescriptor;
 import org.apache.cassandra.config.Schema;
@@ -862,7 +864,16 @@ public class StorageProxy implements StorageProxyMBean
                 responseHandler.response(null);
             }
         };
-        StageManager.getStage(Stage.MUTATION).execute(runnable);
+        
+        // chen modify the stage type
+        if (IsUserOperation.isUserRowMutation(rm))
+        {
+            StageManager.getStage(Stage.READ_MUTATION).execute(runnable);
+        }
+        else {
+            StageManager.getStage(Stage.MUTATION).execute(runnable); 
+        }
+        
     }
 
     /**
@@ -1229,6 +1240,12 @@ public class StorageProxy implements StorageProxyMBean
             MessagingService.instance().addLatency(FBUtilities.getBroadcastAddress(), System.currentTimeMillis() - start);
             handler.response(result);
         }
+
+        public ReadCommand getReadCommand()
+        {
+
+            return command;
+        }
     }
 
     static class LocalRangeSliceRunnable extends DroppableRunnable
@@ -1252,6 +1269,7 @@ public class StorageProxy implements StorageProxyMBean
             MessagingService.instance().addLatency(FBUtilities.getBroadcastAddress(), System.currentTimeMillis() - start);
             handler.response(result);
         }
+
     }
 
     public static List<InetAddress> getLiveSortedEndpoints(Table table, ByteBuffer key)
@@ -1729,10 +1747,16 @@ public class StorageProxy implements StorageProxyMBean
     /**
      * A Runnable that aborts if it doesn't start running before it times out
      */
-    private static abstract class DroppableRunnable implements Runnable
+    private static abstract class DroppableRunnable extends RWTask//implements Runnable
     {
         private final long constructionTime = System.currentTimeMillis();
         private final MessagingService.Verb verb;
+        
+        // chen add
+        public MessagingService.Verb getMessageType()
+        {
+            return verb;
+        }
 
         public DroppableRunnable(MessagingService.Verb verb)
         {
@@ -1758,6 +1782,19 @@ public class StorageProxy implements StorageProxyMBean
         }
 
         abstract protected void runMayThrow() throws Exception;
+        
+        public ReadCommand getReadCommand()
+        {
+            if (this instanceof LocalReadRunnable)
+            {
+                return ((LocalReadRunnable) this).getReadCommand();
+            }
+            else {
+                return null;
+            }
+        }
+        
+       
     }
 
     /**

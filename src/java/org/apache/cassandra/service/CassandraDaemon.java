@@ -67,6 +67,7 @@ public class CassandraDaemon
      */
     public static void initLog4j()
     {
+        String str = System.getProperty("log4j.defaultInitOverride","false");
         if (System.getProperty("log4j.defaultInitOverride","false").equalsIgnoreCase("true"))
         {
             String config = System.getProperty("log4j.configuration", "log4j-server.properties");

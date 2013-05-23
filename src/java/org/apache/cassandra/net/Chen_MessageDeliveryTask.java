@@ -20,11 +20,13 @@ package org.apache.cassandra.net;
 
 
 import org.apache.cassandra.concurrent.Stage;
+import org.apache.cassandra.concurrent.scheduler.RWTask;
+import org.apache.cassandra.db.ReadCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class Chen_MessageDeliveryTask implements Runnable, Comparable<Chen_MessageDeliveryTask>
+public class Chen_MessageDeliveryTask extends RWTask
 {
     private static final Logger logger = LoggerFactory.getLogger(MessageDeliveryTask.class);
 
@@ -32,7 +34,7 @@ public class Chen_MessageDeliveryTask implements Runnable, Comparable<Chen_Messa
     private final long constructionTime;
     private final int id;
     
-    protected long priority;
+    
     protected boolean installed;
 
     public Chen_MessageDeliveryTask(MessageIn message, int id, long timestamp)
@@ -66,7 +68,7 @@ public class Chen_MessageDeliveryTask implements Runnable, Comparable<Chen_Messa
         verbHandler.doVerb(message, id);
     }
 
-    @Override
+    /*@Override
     public int compareTo(Chen_MessageDeliveryTask o)
     {
         if (message.getMessageType() == Stage.READ)
@@ -94,7 +96,7 @@ public class Chen_MessageDeliveryTask implements Runnable, Comparable<Chen_Messa
                 return compare_READ_MUTATION(o, this);
             }
         }
-    }
+    }*/
 
     private int compare_READ_MUTATION(Chen_MessageDeliveryTask read_task,
             Chen_MessageDeliveryTask mutation_task)
@@ -132,6 +134,14 @@ public class Chen_MessageDeliveryTask implements Runnable, Comparable<Chen_Messa
     
     public long getconstructionTime() {
         return constructionTime;
+    }
+
+    @Override
+    public ReadCommand getReadCommand()
+    {
+        assert (message.payload instanceof ReadCommand);
+
+        return (ReadCommand)message.payload;
     }
     
 }

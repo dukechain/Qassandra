@@ -23,7 +23,6 @@ import java.util.concurrent.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.apache.cassandra.cli.CliParser.newColumnFamily_return;
 import org.apache.cassandra.concurrent.scheduler.SchedulerFactory;
 import org.apache.cassandra.concurrent.scheduler.TPE.Chen_ThreadPoolExecutor;
 
@@ -52,12 +51,12 @@ public class StageManager
     static
     {
         // chen modify here to let mutation and read be in the same executor
-        Chen_ThreadPoolExecutor tPE_mixtureExecutor = multiThreaded_mutilType_ConfigurableStage(Stage.READ, 
+        Chen_ThreadPoolExecutor tPE_mixtureExecutor = multiThreaded_mutilType_ConfigurableStage(Stage.READ_MUTATION, 
                 getConcurrentReaders() + getConcurrentWriters());
-//        stages.put(Stage.MUTATION, multiThreadedConfigurableStage(Stage.MUTATION, getConcurrentWriters()));
-//        stages.put(Stage.READ, multiThreadedConfigurableStage(Stage.READ, getConcurrentReaders()));
-        stages.put(Stage.MUTATION, tPE_mixtureExecutor);
-        stages.put(Stage.READ, tPE_mixtureExecutor);
+        stages.put(Stage.MUTATION, multiThreadedConfigurableStage(Stage.MUTATION, getConcurrentWriters()));
+        stages.put(Stage.READ, multiThreadedConfigurableStage(Stage.READ, getConcurrentReaders()));
+        stages.put(Stage.READ_MUTATION, tPE_mixtureExecutor);
+//        stages.put(Stage.READ, tPE_mixtureExecutor);
         stages.put(Stage.REQUEST_RESPONSE, multiThreadedStage(Stage.REQUEST_RESPONSE, FBUtilities.getAvailableProcessors()));
         stages.put(Stage.INTERNAL_RESPONSE, multiThreadedStage(Stage.INTERNAL_RESPONSE, FBUtilities.getAvailableProcessors()));
         stages.put(Stage.REPLICATE_ON_WRITE, multiThreadedConfigurableStage(Stage.REPLICATE_ON_WRITE, getConcurrentReplicators(), MAX_REPLICATE_ON_WRITE_TASKS));

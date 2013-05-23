@@ -1,9 +1,9 @@
 package org.apache.cassandra.concurrent.scheduler.policy;
 
-import org.apache.cassandra.net.Chen_MessageDeliveryTask;
+import org.apache.cassandra.db.ReadCommand;
 
 public interface Policy
 {
 
-    public void setReadPriority(Chen_MessageDeliveryTask task);
+    public void setReadPriority(ReadCommand rc);
 }

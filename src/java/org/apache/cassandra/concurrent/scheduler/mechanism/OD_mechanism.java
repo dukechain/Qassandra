@@ -4,6 +4,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.cassandra.concurrent.NamedThreadFactory;
+import org.apache.cassandra.concurrent.scheduler.RWTask;
 import org.apache.cassandra.concurrent.scheduler.TPE.Chen_JMXConfigurableThreadPoolExecutor;
 
 import org.apache.cassandra.concurrent.scheduler.policy.Policy;
@@ -29,11 +30,11 @@ public class OD_mechanism extends Chen_JMXConfigurableThreadPoolExecutor
     protected void beforeExecute(Thread t, Runnable r) { 
         super.beforeExecute(t, r);
         
-        Chen_MessageDeliveryTask task = (Chen_MessageDeliveryTask) r;
+        RWTask task = (RWTask) r;
         
         if (task.getMessageType() == MessagingService.Verb.READ)
         {
-            ReadCommand rc = (ReadCommand) task.getMessage().payload;
+            ReadCommand rc = task.getReadCommand();
             
             Runnable writetask = getWriteonGivenKey(rc.key);
             

@@ -11,7 +11,7 @@ import org.apache.cassandra.concurrent.NamedThreadFactory;
 import org.apache.cassandra.concurrent.scheduler.policy.Policy;
 
 
-public class Chen_JMXConfigurableThreadPoolExecutor extends Chen_JMXEnabledThreadPoolExecutor implements JMXConfigurableThreadPoolExecutorMBean
+public class Chen_JMXConfigurableThreadPoolExecutor extends Chen_JMXEnabledThreadPoolExecutor
 {
     /*public Chen_JMXConfigurableThreadPoolExecutor(int corePoolSize,
             long keepAliveTime,

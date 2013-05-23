@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.apache.cassandra.concurrent.Stage;
 import org.apache.cassandra.concurrent.StageManager;
+import org.apache.cassandra.concurrent.scheduler.IsUserOperation;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.config.Schema;
 import org.apache.cassandra.db.ColumnFamilyStore;
@@ -74,7 +75,14 @@ public abstract class AbstractReadExecutor
         if (dataPoint.equals(FBUtilities.getBroadcastAddress()) && StorageProxy.OPTIMIZE_LOCAL_REQUESTS)
         {
             logger.trace("reading data locally");
-            StageManager.getStage(Stage.READ).execute(new LocalReadRunnable(command, handler));
+            
+            if (IsUserOperation.isUserReadCommand(command))
+            {
+                StageManager.getStage(Stage.READ_MUTATION).execute(new LocalReadRunnable(command, handler));
+            }
+            else {
+                StageManager.getStage(Stage.READ).execute(new LocalReadRunnable(command, handler));
+            }
         }
         else
         {

@@ -44,6 +44,7 @@ import org.apache.cassandra.cli.CliParser.newColumnFamily_return;
 import org.apache.cassandra.concurrent.DebuggableThreadPoolExecutor;
 import org.apache.cassandra.concurrent.Stage;
 import org.apache.cassandra.concurrent.StageManager;
+import org.apache.cassandra.concurrent.scheduler.IsUserOperation;
 import org.apache.cassandra.config.DatabaseDescriptor;
 import org.apache.cassandra.config.EncryptionOptions.ServerEncryptionOptions;
 import org.apache.cassandra.db.*;
@@ -132,6 +133,10 @@ public final class MessagingService implements MessagingServiceMBean
     public static final EnumMap<MessagingService.Verb, Stage> verbStages = new EnumMap<MessagingService.Verb, Stage>(MessagingService.Verb.class)
     {{
         put(Verb.MUTATION, Stage.MUTATION);
+        
+        //chen modify 22/05/2013
+        //put(Verb.MUTATION, Stage.READ_MUTATION);
+        
         put(Verb.READ_REPAIR, Stage.MUTATION);
         put(Verb.TRUNCATE, Stage.MUTATION);
         put(Verb.COUNTER_MUTATION, Stage.MUTATION);
@@ -713,7 +718,8 @@ public final class MessagingService implements MessagingServiceMBean
             throw new IOError(e);
         }
     }
-
+    
+    
     // chen modify
     public void receive(MessageIn message, int id, long timestamp)
     {
@@ -728,17 +734,20 @@ public final class MessagingService implements MessagingServiceMBean
         
         //chen add..........
         Runnable runnable;
-        if (message.verb == Verb.MUTATION || 
-                message.verb == Verb.READ)
+        ExecutorService stage;
+        
+        if (IsUserOperation.isUserMessage(message))
         {
             runnable = new Chen_MessageDeliveryTask(message, id, timestamp);
+            stage = StageManager.getStage(Stage.READ_MUTATION);
         }
         else {
             runnable = new MessageDeliveryTask(message, id, timestamp);
+            stage = StageManager.getStage(message.getMessageType());
         }
         //...............
         
-        ExecutorService stage = StageManager.getStage(message.getMessageType());
+        //ExecutorService stage = StageManager.getStage(message.getMessageType());
         assert stage != null : "No stage for message type " + message.verb;
 
         stage.execute(runnable);

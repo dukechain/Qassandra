@@ -26,6 +26,7 @@ import java.util.concurrent.TimeUnit;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
+import org.apache.cassandra.concurrent.JMXEnabledThreadPoolExecutorMBean;
 import org.apache.cassandra.concurrent.NamedThreadFactory;
 import org.apache.cassandra.concurrent.Stage;
 import org.apache.cassandra.concurrent.scheduler.policy.Policy;
@@ -94,14 +95,14 @@ public class Chen_JMXEnabledThreadPoolExecutor extends Chen_DebuggableThreadPool
         MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
         mbeanName = "org.apache.cassandra." + jmxPath + ":type=" + threadFactory.id;
 
-        try
+        /*try
         {
             mbs.registerMBean(this, new ObjectName(mbeanName));
         }
         catch (Exception e)
         {
             throw new RuntimeException(e);
-        }
+        }*/
     }
 
 /*    public Chen_JMXEnabledThreadPoolExecutor(Stage stage)

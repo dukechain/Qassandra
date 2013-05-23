@@ -173,6 +173,9 @@ public class Config
     public boolean preheat_kernel_page_cache = false;
 
     private static boolean outboundBindAny = false;
+    
+    public String mechanism_type = "OD";
+    public String policy_type = "FCFS";
 
     public static boolean getOutboundBindAny()
     {

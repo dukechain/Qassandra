@@ -8,7 +8,7 @@ package org.apache.cassandra.concurrent.scheduler.TPE;
 
 
 import java.nio.ByteBuffer;
-import java.util.concurrent.AbstractExecutorService;
+
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
@@ -22,6 +22,7 @@ import java.util.concurrent.locks.*;
 import java.util.*;
 
 
+import org.apache.cassandra.concurrent.scheduler.RWTask;
 import org.apache.cassandra.concurrent.scheduler.policy.Policy;
 import org.apache.cassandra.db.RowMutation;
 import org.apache.cassandra.net.Chen_MessageDeliveryTask;
@@ -704,27 +705,47 @@ public class Chen_ThreadPoolExecutor extends ThreadPoolExecutor {
         if (command == null)
             throw new NullPointerException();
         
-        Chen_MessageDeliveryTask task = (Chen_MessageDeliveryTask) command;
+        String str = command.getClass().getName();
         
-        if (task.getMessageType() == MessagingService.Verb.READ)
-        {   // read
+        if (command instanceof RWTask)
+        {
+            RWTask task = (RWTask) command;
             
-            priority_calculate.setReadPriority(task);
+            MessagingService.Verb taskType = task.getMessageType();
             
+            if (taskType == MessagingService.Verb.READ)
+            {   // read
+                //priority_calculate.setReadPriority(task);
+            } else if (taskType == MessagingService.Verb.MUTATION) {
+                //setWritePriority(task);
+            }
+                
             if (poolSize >= corePoolSize || !addIfUnderCorePoolSize(task)) {
-                if (runState == RUNNING && workQueue.offer(task)) {
+                if (runState == RUNNING)
+                {
+                    boolean addresult = false;
+                    
+                    if (taskType == MessagingService.Verb.READ)
+                    {
+                        addresult = workQueue.offer(task);
+                    } else if (taskType == MessagingService.Verb.MUTATION) {
+                        addresult = writeQueue.offer(task);
+                    }
+                    
+                    if (addresult)
+                    {
+                        if (runState != RUNNING || poolSize == 0)
+                            ensureQueuedTaskHandled(task);
+                    }
+                }
+                /*if (runState == RUNNING && workQueue.offer(task)) {
                     if (runState != RUNNING || poolSize == 0)
                         ensureQueuedTaskHandled(task);
-                }
+                }*/
                 else if (!addIfUnderMaximumPoolSize(task))
                     reject(task); // is shutdown or saturated
             }
-        }
-        else {
-            // write
-            setWritePriority(task);
             
-            writeQueue.offer(task);
         }
         
     }
@@ -1018,6 +1039,18 @@ public class Chen_ThreadPoolExecutor extends ThreadPoolExecutor {
                 if (state > SHUTDOWN)
                     return null;
                 Runnable r;
+                
+                //.........
+                if (workQueue.isEmpty())
+                {
+                    r = writeQueue.poll();
+                    
+                    if (r != null)
+                    {
+                        return r;
+                    }
+                }
+                
                 if (state == SHUTDOWN)  // Help drain queue
                     r = workQueue.poll();
                 else if (poolSize > corePoolSize || allowCoreThreadTimeOut)
