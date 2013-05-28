@@ -22,11 +22,14 @@ import java.util.concurrent.locks.*;
 import java.util.*;
 
 
+import org.antlr.grammar.v3.ANTLRv3Parser.finallyClause_return;
 import org.apache.cassandra.concurrent.scheduler.RWTask;
 import org.apache.cassandra.concurrent.scheduler.policy.Policy;
 import org.apache.cassandra.db.RowMutation;
 import org.apache.cassandra.net.Chen_MessageDeliveryTask;
 import org.apache.cassandra.net.MessagingService;
+import org.apache.pig.parser.QueryParser.null_check_cond_return;
+import org.eclipse.jdt.internal.core.builder.WorkQueue;
 
 
 /**
@@ -389,6 +392,8 @@ public class Chen_ThreadPoolExecutor extends ThreadPoolExecutor {
             new ConcurrentHashMap<ByteBuffer, Runnable>();
     
     protected final Policy priority_calculate;
+    
+    protected final Mover writeMover = new Mover();
 
     /**
      * Lock held on updates to poolSize, corePoolSize,
@@ -705,8 +710,6 @@ public class Chen_ThreadPoolExecutor extends ThreadPoolExecutor {
         if (command == null)
             throw new NullPointerException();
         
-        String str = command.getClass().getName();
-        
         if (command instanceof RWTask)
         {
             RWTask task = (RWTask) command;
@@ -715,39 +718,36 @@ public class Chen_ThreadPoolExecutor extends ThreadPoolExecutor {
             
             if (taskType == MessagingService.Verb.READ)
             {   // read
-                //priority_calculate.setReadPriority(task);
+                priority_calculate.setReadPriority(task);
+                executeRead(command);
             } else if (taskType == MessagingService.Verb.MUTATION) {
-                //setWritePriority(task);
-            }
-                
-            if (poolSize >= corePoolSize || !addIfUnderCorePoolSize(task)) {
-                if (runState == RUNNING)
-                {
-                    boolean addresult = false;
-                    
-                    if (taskType == MessagingService.Verb.READ)
-                    {
-                        addresult = workQueue.offer(task);
-                    } else if (taskType == MessagingService.Verb.MUTATION) {
-                        addresult = writeQueue.offer(task);
-                    }
-                    
-                    if (addresult)
-                    {
-                        if (runState != RUNNING || poolSize == 0)
-                            ensureQueuedTaskHandled(task);
-                    }
-                }
-                /*if (runState == RUNNING && workQueue.offer(task)) {
-                    if (runState != RUNNING || poolSize == 0)
-                        ensureQueuedTaskHandled(task);
-                }*/
-                else if (!addIfUnderMaximumPoolSize(task))
-                    reject(task); // is shutdown or saturated
+                executeWrite(command);
             }
             
         }
         
+    }
+    
+    private void executeRead(Runnable command) {
+        if (poolSize >= corePoolSize || !addIfUnderCorePoolSize(command)) {
+            if (runState == RUNNING && workQueue.offer(command)) {
+                if (runState != RUNNING || poolSize == 0)
+                    ensureQueuedTaskHandled(command);
+            }
+            else if (!addIfUnderMaximumPoolSize(command))
+                reject(command); // is shutdown or saturated
+        }
+    }
+    
+    private void executeWrite(Runnable command) {
+        if (poolSize >= corePoolSize || !addIfUnderCorePoolSize(command)) {
+            if (runState == RUNNING && writeQueue.offer(command)) {
+                if (runState != RUNNING || poolSize == 0)
+                    ensureQueuedWriteTaskHandled(command);
+            }
+            else if (!addIfUnderMaximumPoolSize(command))
+                reject(command); // is shutdown or saturated
+        }
     }
 
     protected void setWritePriority(Chen_MessageDeliveryTask task)
@@ -857,6 +857,28 @@ public class Chen_ThreadPoolExecutor extends ThreadPoolExecutor {
         else if (t != null)
             t.start();
     }
+    
+    private void ensureQueuedWriteTaskHandled(Runnable command) {
+        final ReentrantLock mainLock = this.mainLock;
+        mainLock.lock();
+        boolean reject = false;
+        Thread t = null;
+        try {
+            int state = runState;
+            if (state != RUNNING && writeQueue.remove(command))
+                reject = true;
+            else if (state < STOP &&
+                     poolSize < Math.max(corePoolSize, 1) &&
+                     !writeQueue.isEmpty())
+                t = addThread(null);
+        } finally {
+            mainLock.unlock();
+        }
+        if (reject)
+            reject(command);
+        else if (t != null)
+            t.start();
+    }
 
     /**
      * Invokes the rejected execution handler for the given command.
@@ -865,6 +887,40 @@ public class Chen_ThreadPoolExecutor extends ThreadPoolExecutor {
         handler.rejectedExecution(command, this);
     }
 
+    
+    private final class Mover implements Runnable {
+        
+        public Mover() {}
+
+        @Override
+        public void run()
+        {
+            while (true)
+            {
+                if (workQueue.isEmpty())
+                {
+                    Runnable r;
+                    try
+                    {
+                        r = writeQueue.take();
+                        
+                        if (r!=null)
+                        {
+                            workQueue.add(r);
+                        }
+                    }
+                    catch (InterruptedException e)
+                    {
+                        
+                    }
+                    
+                    
+                }
+            }
+            
+        }
+        
+    }
 
     /**
      * Worker threads.
@@ -1040,23 +1096,14 @@ public class Chen_ThreadPoolExecutor extends ThreadPoolExecutor {
                     return null;
                 Runnable r;
                 
-                //.........
-                if (workQueue.isEmpty())
-                {
-                    r = writeQueue.poll();
-                    
-                    if (r != null)
-                    {
-                        return r;
-                    }
-                }
-                
                 if (state == SHUTDOWN)  // Help drain queue
                     r = workQueue.poll();
                 else if (poolSize > corePoolSize || allowCoreThreadTimeOut)
                     r = workQueue.poll(keepAliveTime, TimeUnit.NANOSECONDS);
-                else
+                else {
                     r = workQueue.take();
+                }
+
                 if (r != null)
                     return r;
                 if (workerCanExit()) {
@@ -1511,6 +1558,10 @@ public class Chen_ThreadPoolExecutor extends ThreadPoolExecutor {
         int n = 0;
         while (addIfUnderCorePoolSize(null))
             ++n;
+        
+        Thread t = new Thread(writeMover);
+        t.start();
+        
         return n;
     }
 

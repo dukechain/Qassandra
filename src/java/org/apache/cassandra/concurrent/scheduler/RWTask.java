@@ -6,7 +6,7 @@ import org.apache.cassandra.net.MessagingService;
 
 public abstract class RWTask implements Runnable, Comparable<RWTask>
 {
-    protected long priority;
+    protected double priority;
     
     @Override
     public int compareTo(RWTask o)
@@ -20,6 +20,10 @@ public abstract class RWTask implements Runnable, Comparable<RWTask>
     public abstract MessagingService.Verb getMessageType();
     
     public abstract ReadCommand getReadCommand();
+    
+    public void setPriority(Double priority) {
+        this.priority = priority;
+    }
 
 
 }

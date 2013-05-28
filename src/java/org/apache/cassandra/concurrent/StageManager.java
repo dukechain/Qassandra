@@ -52,9 +52,10 @@ public class StageManager
     {
         // chen modify here to let mutation and read be in the same executor
         Chen_ThreadPoolExecutor tPE_mixtureExecutor = multiThreaded_mutilType_ConfigurableStage(Stage.READ_MUTATION, 
-                getConcurrentReaders() + getConcurrentWriters());
+                1);
         stages.put(Stage.MUTATION, multiThreadedConfigurableStage(Stage.MUTATION, getConcurrentWriters()));
         stages.put(Stage.READ, multiThreadedConfigurableStage(Stage.READ, getConcurrentReaders()));
+//        stages.put(Stage.READ_MUTATION, multiThreadedConfigurableStage(Stage.READ_MUTATION, getConcurrentWriters()));
         stages.put(Stage.READ_MUTATION, tPE_mixtureExecutor);
 //        stages.put(Stage.READ, tPE_mixtureExecutor);
         stages.put(Stage.REQUEST_RESPONSE, multiThreadedStage(Stage.REQUEST_RESPONSE, FBUtilities.getAvailableProcessors()));
@@ -108,7 +109,7 @@ public class StageManager
                                                      new NamedThreadFactory(stage.getJmxName()),
                                                      stage.getJmxType());*/
 
-        return SchedulerFactory.createScheduler("OD", "FCFS", 
+        return SchedulerFactory.createScheduler("OD", "EDF", 
                 numThreads, 
                 KEEPALIVE, 
                 TimeUnit.SECONDS, 

@@ -1,19 +1,22 @@
 package org.apache.cassandra.concurrent.scheduler.policy;
 
 
+
+import org.apache.cassandra.concurrent.scheduler.RWTask;
 import org.apache.cassandra.db.ReadCommand;
-import org.apache.cassandra.net.Chen_MessageDeliveryTask;
+
 
 public class FCFS_policy implements Policy
 {
 
     @Override
-    public void setReadPriority(ReadCommand rc)
+    public void setReadPriority(RWTask task)
     {
-        /*long priority = task.getconstructionTime();
+        ReadCommand rc = task.getReadCommand();
         
-        task.setPriority(priority);*/
+        long arrival_time = rc.para_wrapper.arrival_time;
         
+        task.setPriority(1d/arrival_time);
         
     }
 }

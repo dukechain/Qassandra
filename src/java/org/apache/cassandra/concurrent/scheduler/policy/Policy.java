@@ -1,9 +1,10 @@
 package org.apache.cassandra.concurrent.scheduler.policy;
 
-import org.apache.cassandra.db.ReadCommand;
+
+import org.apache.cassandra.concurrent.scheduler.RWTask;
 
 public interface Policy
 {
 
-    public void setReadPriority(ReadCommand rc);
+    public void setReadPriority(RWTask task);
 }

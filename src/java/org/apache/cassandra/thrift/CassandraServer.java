@@ -487,7 +487,7 @@ public class CassandraServer implements Cassandra.Iface
     }
     
     private ColumnOrSuperColumn internal_get(ByteBuffer key, ColumnPath column_path, ConsistencyLevel consistency_level,
-            long tardiness_deadline, long staleness_deadline)
+            SchedulerParameter para_wrapper)
     throws RequestValidationException, NotFoundException, UnavailableException, TimedOutException
     {
         ThriftClientState cState = state();
@@ -517,7 +517,7 @@ public class CassandraServer implements Cassandra.Iface
         }
 
         ReadCommand command = ReadCommand.create(keyspace, key, column_path.column_family, filter,
-                tardiness_deadline, staleness_deadline);
+                para_wrapper);
 
         Map<DecoratedKey, ColumnFamily> cfamilies = readColumnFamily(Arrays.asList(command), consistencyLevel);
 
@@ -575,8 +575,8 @@ public class CassandraServer implements Cassandra.Iface
      * @throws UnavailableException
      * @throws TimedOutException
      */
-    public ColumnOrSuperColumn get(ByteBuffer key, ColumnPath column_path, ConsistencyLevel consistency_level,
-            long tardiness_deadline, long staleness_deadline)
+    public ColumnOrSuperColumn get_Q(ByteBuffer key, ColumnPath column_path, ConsistencyLevel consistency_level,
+            Agreement_parameters para_wrapper)
     throws InvalidRequestException, NotFoundException, UnavailableException, TimedOutException
     {
         if (startSessionIfRequested())
@@ -593,7 +593,8 @@ public class CassandraServer implements Cassandra.Iface
 
         try
         {
-            return internal_get(key, column_path, consistency_level, tardiness_deadline, staleness_deadline);
+            return internal_get(key, column_path, consistency_level, 
+                    new SchedulerParameter(para_wrapper));
         }
         catch (RequestValidationException e)
         {
@@ -813,6 +814,7 @@ public class CassandraServer implements Cassandra.Iface
             Tracing.instance().stopSession();
         }
     }
+    
 
     public boolean cas(ByteBuffer key, String column_family, List<Column> expected, List<Column> updates)
     throws InvalidRequestException, UnavailableException, TimedOutException

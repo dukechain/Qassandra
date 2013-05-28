@@ -43,9 +43,9 @@ public class SliceByNamesReadCommand extends ReadCommand
     }
     
     public SliceByNamesReadCommand(String table, ByteBuffer key, String cfName, NamesQueryFilter filter,
-            long tardiness_deadline, long staleness_deadline)
+            SchedulerParameter para_wrapper)
     {
-        super(table, key, cfName, Type.GET_BY_NAMES, tardiness_deadline, staleness_deadline);
+        super(table, key, cfName, Type.GET_BY_NAMES, para_wrapper);
         this.filter = filter;
     }
 

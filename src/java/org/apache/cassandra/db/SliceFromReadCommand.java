@@ -54,9 +54,9 @@ public class SliceFromReadCommand extends ReadCommand
     
     //chen add
     public SliceFromReadCommand(String table, ByteBuffer key, String cfName, SliceQueryFilter filter,
-            long tardiness_deadline, long staleness_deadline)
+            SchedulerParameter para_wrapper)
     {
-        super(table, key, cfName, Type.GET_SLICES, tardiness_deadline, staleness_deadline);
+        super(table, key, cfName, Type.GET_SLICES, para_wrapper);
         this.filter = filter;
     }
 

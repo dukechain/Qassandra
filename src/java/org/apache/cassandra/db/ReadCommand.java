@@ -69,8 +69,7 @@ public abstract class ReadCommand implements IReadCommand
     protected final Type commandType;
     
     // chen add
-    public long tardiness_deadline;
-    public long staleness_deadline;
+    public SchedulerParameter para_wrapper;
 
     protected ReadCommand(String table, ByteBuffer key, String cfName, Type cmdType)
     {
@@ -82,15 +81,14 @@ public abstract class ReadCommand implements IReadCommand
     
     // chen add
     protected ReadCommand(String table, ByteBuffer key, String cfName, Type cmdType,
-            long tardiness_deadline, long staleness_deadline)
+            SchedulerParameter para_wrapper)
     {
         this.table = table;
         this.key = key;
         this.cfName = cfName;
         this.commandType = cmdType;
         
-        this.tardiness_deadline = tardiness_deadline;
-        this.staleness_deadline = staleness_deadline;
+        this.para_wrapper = para_wrapper;
     }
 
     public static ReadCommand create(String table, ByteBuffer key, String cfName, IDiskAtomFilter filter)
@@ -103,14 +101,14 @@ public abstract class ReadCommand implements IReadCommand
     
     //chen add
     public static ReadCommand create(String table, ByteBuffer key, String cfName, IDiskAtomFilter filter,
-            long tardiness_deadline, long stalenss_deadline)
+            SchedulerParameter para_wrapper)
     {
         if (filter instanceof SliceQueryFilter)
             return new SliceFromReadCommand(table, key, cfName, (SliceQueryFilter)filter, 
-                    tardiness_deadline, stalenss_deadline);
+                   para_wrapper);
         else
             return new SliceByNamesReadCommand(table, key, cfName, (NamesQueryFilter)filter,
-                    tardiness_deadline, stalenss_deadline);
+                   para_wrapper);
     }
 
     public boolean isDigestQuery()
