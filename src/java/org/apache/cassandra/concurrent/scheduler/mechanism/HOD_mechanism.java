@@ -1,24 +1,49 @@
 package org.apache.cassandra.concurrent.scheduler.mechanism;
 
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.RejectedExecutionHandler;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
-
-import org.apache.cassandra.concurrent.scheduler.TPE.Chen_ThreadPoolExecutor;
+import org.apache.cassandra.concurrent.NamedThreadFactory;
+import org.apache.cassandra.concurrent.scheduler.RWTask;
+import org.apache.cassandra.concurrent.scheduler.TPE.Chen_JMXConfigurableThreadPoolExecutor;
 import org.apache.cassandra.concurrent.scheduler.policy.Policy;
+import org.apache.cassandra.db.ReadCommand;
+import org.apache.cassandra.net.MessagingService;
 
-public class HOD_mechanism extends Chen_ThreadPoolExecutor
+public class HOD_mechanism extends Chen_JMXConfigurableThreadPoolExecutor
 {
 
-    public HOD_mechanism(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit, BlockingQueue<Runnable> workQueue,
-            ThreadFactory threadFactory, RejectedExecutionHandler handler, BlockingQueue<Runnable> writeQueue, Policy priority_calculate)
-    {
-        super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, threadFactory, handler, writeQueue, priority_calculate);
-        // TODO Auto-generated constructor stub
+    public HOD_mechanism(int corePoolSize,
+            long keepAliveTime, 
+            TimeUnit unit, 
+            BlockingQueue<Runnable> workQueue,
+            NamedThreadFactory threadFactory,
+            String jmxPath,
+            BlockingQueue<Runnable> writeQueue, 
+            Policy priority_calculate) {
+        
+        super(corePoolSize, keepAliveTime, unit, workQueue, threadFactory, jmxPath,
+                writeQueue, priority_calculate);     
     }
 
+    protected void beforeExecute(Thread t, Runnable r) { 
+        super.beforeExecute(t, r);
+        
+        RWTask task = (RWTask) r;
+        
+        if (task.getMessageType() == MessagingService.Verb.READ)
+        {
+            ReadCommand rc = task.getReadCommand();
+            
+            List<RWTask> writetask = removeWritesonGivenKey(rc.key);
+            
+            if (writetask != null)
+            {
+                writetask.get(writetask.size()-1).run();
+            }
+        }
+    }
     
 
 }

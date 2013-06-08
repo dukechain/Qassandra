@@ -1,15 +1,14 @@
 package org.apache.cassandra.concurrent.scheduler.mechanism;
 
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.cassandra.concurrent.NamedThreadFactory;
 import org.apache.cassandra.concurrent.scheduler.RWTask;
 import org.apache.cassandra.concurrent.scheduler.TPE.Chen_JMXConfigurableThreadPoolExecutor;
-
 import org.apache.cassandra.concurrent.scheduler.policy.Policy;
 import org.apache.cassandra.db.ReadCommand;
-import org.apache.cassandra.net.Chen_MessageDeliveryTask;
 import org.apache.cassandra.net.MessagingService;
 
 public class OD_mechanism extends Chen_JMXConfigurableThreadPoolExecutor
@@ -36,11 +35,13 @@ public class OD_mechanism extends Chen_JMXConfigurableThreadPoolExecutor
         {
             ReadCommand rc = task.getReadCommand();
             
-            Runnable writetask = getWriteonGivenKey(rc.key);
+            
+            //remove 
+            List<RWTask> writetask = removeWritesonGivenKey(rc.key);
             
             if (writetask != null)
             {
-                writetask.run();
+                writetask.get(writetask.size()-1).run();
             }
         }
     }

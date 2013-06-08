@@ -25,6 +25,7 @@ import java.util.*;
 import org.antlr.grammar.v3.ANTLRv3Parser.finallyClause_return;
 import org.apache.cassandra.concurrent.scheduler.RWTask;
 import org.apache.cassandra.concurrent.scheduler.policy.Policy;
+import org.apache.cassandra.db.ReadCommand;
 import org.apache.cassandra.db.RowMutation;
 import org.apache.cassandra.net.Chen_MessageDeliveryTask;
 import org.apache.cassandra.net.MessagingService;
@@ -718,7 +719,7 @@ public class Chen_ThreadPoolExecutor extends ThreadPoolExecutor {
             
             if (taskType == MessagingService.Verb.READ)
             {   // read
-                priority_calculate.setReadPriority(task);
+                priority_calculate.setReadPriority(task, getWritesonGivenKey(task));
                 executeRead(command);
             } else if (taskType == MessagingService.Verb.MUTATION) {
                 executeWrite(command);
@@ -1706,8 +1707,8 @@ public class Chen_ThreadPoolExecutor extends ThreadPoolExecutor {
     }
     
     // chen add
-    protected Runnable getWriteonGivenKey(ByteBuffer key) {
-        Runnable write = null;
+    protected List<RWTask> removeWritesonGivenKey(ByteBuffer key) {
+        List<RWTask> writes = new ArrayList<RWTask>();
         
         for (Runnable r: writeQueue)
         {
@@ -1716,13 +1717,61 @@ public class Chen_ThreadPoolExecutor extends ThreadPoolExecutor {
             RowMutation rm = (RowMutation)task.getMessage().payload;
             
             if(key.equals(rm.key())) {
-                write = r;
+                writes.add((RWTask)r);
                 
-                writeQueue.remove(r);
+                writeQueue.remove(r); /////
             }
         }
         
-        return write;
+        return writes;
+    }
+    
+    // chen add
+    protected List<RWTask> removeWritesonGivenKey(RWTask read) {
+        
+        RWTask task = (RWTask) read;
+        
+        assert (task.getMessageType() == MessagingService.Verb.READ);
+
+        ReadCommand rc = task.getReadCommand();
+            
+        return removeWritesonGivenKey(rc.key);
+
+    }
+    
+    // chen add
+    protected List<RWTask> getWritesonGivenKey(ByteBuffer key) {
+        List<RWTask> writes = new ArrayList<RWTask>();
+        
+        //Runnable write = null;
+        
+        for (Runnable r: writeQueue)
+        {
+            Chen_MessageDeliveryTask task = (Chen_MessageDeliveryTask) r;
+            
+            RowMutation rm = (RowMutation)task.getMessage().payload;
+            
+            if(key.equals(rm.key())) {
+                writes.add((RWTask)r);
+                
+                //writeQueue.remove(r);
+            }
+        }
+        
+        return writes;
+    }
+    
+    // chen add
+    protected List<RWTask> getWritesonGivenKey(RWTask read) {
+        
+        RWTask task = (RWTask) read;
+        
+        assert (task.getMessageType() == MessagingService.Verb.READ);
+
+        ReadCommand rc = task.getReadCommand();
+            
+        return getWritesonGivenKey(rc.key);
+
     }
 
     /**
