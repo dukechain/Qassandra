@@ -9,7 +9,7 @@ public class EDF_policy implements Policy
 {
 
     @Override
-    public void setReadPriority(RWTask task, List<RWTask> writeTask)
+    public void setReadPriority(RWTask task, List<RWTask> writeTask, long tau)
     {
         ReadCommand rc = task.getReadCommand();
         

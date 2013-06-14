@@ -27,6 +27,7 @@ public class HOD_mechanism extends Chen_JMXConfigurableThreadPoolExecutor
                 writeQueue, priority_calculate);     
     }
 
+    @Override
     protected void beforeExecute(Thread t, Runnable r) { 
         super.beforeExecute(t, r);
         

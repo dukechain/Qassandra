@@ -12,7 +12,7 @@ public class FCFS_policy implements Policy
 {
 
     @Override
-    public void setReadPriority(RWTask readTask, List<RWTask> writeTask)
+    public void setReadPriority(RWTask readTask, List<RWTask> writeTask, long tau)
     {
         ReadCommand rc = readTask.getReadCommand();
         

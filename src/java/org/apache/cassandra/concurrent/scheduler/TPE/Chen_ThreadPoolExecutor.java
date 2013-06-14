@@ -29,6 +29,7 @@ import org.apache.cassandra.db.ReadCommand;
 import org.apache.cassandra.db.RowMutation;
 import org.apache.cassandra.net.Chen_MessageDeliveryTask;
 import org.apache.cassandra.net.MessagingService;
+import org.apache.cassandra.thrift.Cassandra.Processor.system_add_column_family;
 import org.apache.pig.parser.QueryParser.null_check_cond_return;
 import org.eclipse.jdt.internal.core.builder.WorkQueue;
 
@@ -719,8 +720,16 @@ public class Chen_ThreadPoolExecutor extends ThreadPoolExecutor {
             
             if (taskType == MessagingService.Verb.READ)
             {   // read
-                priority_calculate.setReadPriority(task, getWritesonGivenKey(task));
+                
+                long tau = System.currentTimeMillis();
+                
+                resetPriority(tau);
+                priority_calculate.setReadPriority(task, 
+                        getWritesonGivenKey(task),
+                        tau);
+                
                 executeRead(command);
+                
             } else if (taskType == MessagingService.Verb.MUTATION) {
                 executeWrite(command);
             }
@@ -1090,7 +1099,7 @@ public class Chen_ThreadPoolExecutor extends ThreadPoolExecutor {
     Runnable getTask() {
         for (;;) {
             try {
-                resetPriority();
+                resetPriority(System.currentTimeMillis());
                 
                 int state = runState;
                 if (state > SHUTDOWN)
@@ -1123,7 +1132,7 @@ public class Chen_ThreadPoolExecutor extends ThreadPoolExecutor {
      * 
      * do nothing now
      */
-    protected void resetPriority() {
+    protected void resetPriority(long tau) {
         
     }
 
@@ -1767,8 +1776,13 @@ public class Chen_ThreadPoolExecutor extends ThreadPoolExecutor {
         RWTask task = (RWTask) read;
         
         assert (task.getMessageType() == MessagingService.Verb.READ);
-
+        
         ReadCommand rc = task.getReadCommand();
+        
+        if (rc == null)
+        {
+            return null;
+        }
             
         return getWritesonGivenKey(rc.key);
 
