@@ -64,7 +64,7 @@ public class FIT_mechanism extends Chen_JMXConfigurableThreadPoolExecutor
             RWTask readtask = (RWTask) r;
             ReadCommand read = readtask.getReadCommand();
             
-            read.para_wrapper.QC_k = prediction.time_prediction(readtask);
+            read.para_wrapper.estimated_QC_k = prediction.time_prediction(readtask);
             
             //read.para_wrapper.UC_k = prediction.time_prediction(getWritesonGivenKey((RWTask)w));
             
@@ -89,7 +89,7 @@ public class FIT_mechanism extends Chen_JMXConfigurableThreadPoolExecutor
     {
         double Ps = 0d;
         
-        long QC_k = read.para_wrapper.QC_k;
+        long QC_k = read.para_wrapper.estimated_QC_k;
         
         long tardiness = tau + QC_k - read.para_wrapper.tardiness_deadline;
         tardiness = (tardiness > 0)? tardiness: 0;
@@ -109,8 +109,8 @@ public class FIT_mechanism extends Chen_JMXConfigurableThreadPoolExecutor
     {
         double Pi = 0d;
         
-        long QC_k = read.para_wrapper.QC_k;
-        long UC_k = read.para_wrapper.UC_k;
+        long QC_k = read.para_wrapper.estimated_QC_k;
+        long UC_k = read.para_wrapper.estimated_UC_k;
         
         long tardiness = tau + QC_k + UC_k - read.para_wrapper.tardiness_deadline;
         tardiness = (tardiness > 0)? tardiness: 0;

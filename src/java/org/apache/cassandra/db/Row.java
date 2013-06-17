@@ -21,6 +21,7 @@ import java.io.*;
 import java.nio.ByteBuffer;
 
 import org.apache.cassandra.db.filter.IDiskAtomFilter;
+import org.apache.cassandra.db.marshal.CompositeType;
 import org.apache.cassandra.io.IVersionedSerializer;
 import org.apache.cassandra.io.util.DataOutputBuffer;
 import org.apache.cassandra.net.MessagingService;
@@ -60,6 +61,37 @@ public class Row
     {
         return cf == null ? 0 : filter.getLiveCount(cf);
     }
+    
+    public ByteBuffer toByteBuffer(String value) 
+    {
+        byte [] array = null;
+        try
+        {
+            array =value.getBytes("UTF-8");
+        }
+        catch (UnsupportedEncodingException e)
+        {
+            e.printStackTrace();
+        }
+        
+        return ByteBuffer.wrap(array);
+    }
+    
+    public void addSchedulerWrapper(SchedulerParameter para) 
+    {
+        ByteBuffer name = toByteBuffer("scheduler");
+        
+        if (cf.getType()==ColumnFamilyType.Super)
+        {
+            name = CompositeType.build(name, name);
+        }
+        
+        ByteBuffer value = para.toByteBuffer();
+        
+        Column col = new Column(name, value);
+        
+        cf.addColumn(col);
+    }
 
     public static class RowSerializer implements IVersionedSerializer<Row>
     {
@@ -86,4 +118,5 @@ public class Row
             return TypeSizes.NATIVE.sizeof((short) keySize) + keySize + ColumnFamily.serializer.serializedSize(row.cf, TypeSizes.NATIVE, version);
         }
     }
+    
 }

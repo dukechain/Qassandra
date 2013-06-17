@@ -1134,6 +1134,14 @@ public class StorageProxy implements StorageProxyMBean
                     if (row != null)
                     {
                         exec.command.maybeTrim(row);
+                        
+                        /***/
+                        if (row.cf != null)
+                        {
+                            row.addSchedulerWrapper(exec.command.para_wrapper);
+                        }
+                        /***/
+                        
                         rows.add(row);
                     }
                     if (logger.isDebugEnabled())
@@ -1236,6 +1244,9 @@ public class StorageProxy implements StorageProxyMBean
 
             Table table = Table.open(command.table);
             Row r = command.getRow(table);
+            
+            
+            
             ReadResponse result = ReadVerbHandler.getResponse(command, r);
             MessagingService.instance().addLatency(FBUtilities.getBroadcastAddress(), System.currentTimeMillis() - start);
             handler.response(result);

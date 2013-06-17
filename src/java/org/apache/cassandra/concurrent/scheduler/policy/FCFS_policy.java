@@ -18,7 +18,14 @@ public class FCFS_policy implements Policy
         
         long arrival_time = rc.para_wrapper.arrival_time;
         
-        readTask.setPriority(1d/arrival_time);
+        if (arrival_time != 0)
+        {
+            readTask.setPriority(1d/(double)arrival_time);
+        }
+        else {
+            readTask.setPriority(0d);
+        }
+        
         
     }
 }

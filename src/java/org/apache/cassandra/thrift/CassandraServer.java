@@ -486,7 +486,7 @@ public class CassandraServer implements Cassandra.Iface
         return tcolumns.get(0);
     }
     
-    private ColumnOrSuperColumn internal_get(ByteBuffer key, ColumnPath column_path, ConsistencyLevel consistency_level,
+    private List<ColumnOrSuperColumn> internal_get(ByteBuffer key, ColumnPath column_path, ConsistencyLevel consistency_level,
             SchedulerParameter para_wrapper)
     throws RequestValidationException, NotFoundException, UnavailableException, TimedOutException
     {
@@ -528,8 +528,10 @@ public class CassandraServer implements Cassandra.Iface
         List<ColumnOrSuperColumn> tcolumns = thriftifyColumnFamily(cf, metadata.isSuper() && column_path.column != null, false);
         if (tcolumns.isEmpty())
             throw new NotFoundException();
-        assert tcolumns.size() == 1;
-        return tcolumns.get(0);
+        /*assert tcolumns.size() == 1;
+        return tcolumns.get(0);*/
+        
+        return tcolumns;
     }
 
     public ColumnOrSuperColumn get(ByteBuffer key, ColumnPath column_path, ConsistencyLevel consistency_level)
@@ -575,7 +577,7 @@ public class CassandraServer implements Cassandra.Iface
      * @throws UnavailableException
      * @throws TimedOutException
      */
-    public ColumnOrSuperColumn get_Q(ByteBuffer key, ColumnPath column_path, ConsistencyLevel consistency_level,
+    public List<ColumnOrSuperColumn> get_Q(ByteBuffer key, ColumnPath column_path, ConsistencyLevel consistency_level,
             Agreement_parameters para_wrapper)
     throws InvalidRequestException, NotFoundException, UnavailableException, TimedOutException
     {

@@ -21,7 +21,7 @@ public abstract class RWTask implements Runnable, Comparable<RWTask>
     
     public abstract ReadCommand getReadCommand();
     
-    public void setPriority(Double priority) {
+    public void setPriority(double priority) {
         this.priority = priority;
     }
 

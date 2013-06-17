@@ -13,39 +13,31 @@ import org.apache.cassandra.net.MessagingService;
 
 public class OD_mechanism extends Chen_JMXConfigurableThreadPoolExecutor
 {
-    public OD_mechanism(int corePoolSize,
-            long keepAliveTime, 
-            TimeUnit unit, 
-            BlockingQueue<Runnable> workQueue,
-            NamedThreadFactory threadFactory,
-            String jmxPath,
-            BlockingQueue<Runnable> writeQueue, 
-            Policy priority_calculate)
+    public OD_mechanism(int corePoolSize, long keepAliveTime, TimeUnit unit, BlockingQueue<Runnable> workQueue, NamedThreadFactory threadFactory,
+            String jmxPath, BlockingQueue<Runnable> writeQueue, Policy priority_calculate)
     {
-        super(corePoolSize, keepAliveTime, unit, workQueue, threadFactory, jmxPath,
-                writeQueue, priority_calculate);
+        super(corePoolSize, keepAliveTime, unit, workQueue, threadFactory, jmxPath, writeQueue, priority_calculate);
     }
 
     @Override
-    protected void beforeExecute(Thread t, Runnable r) { 
+    protected void beforeExecute(Thread t, Runnable r)
+    {
         super.beforeExecute(t, r);
-        
+
         RWTask task = (RWTask) r;
-        
+
         if (task.getMessageType() == MessagingService.Verb.READ)
         {
             ReadCommand rc = task.getReadCommand();
-            
-            
+
             //remove 
             List<RWTask> writetask = removeWritesonGivenKey(rc.key);
-            
-            if (writetask != null)
+
+            if (writetask != null && !writetask.isEmpty())
             {
-                writetask.get(writetask.size()-1).run();
+                writetask.get(writetask.size() - 1).run();
             }
         }
     }
-    
 
 }

@@ -16,8 +16,8 @@ public class WSJF_policy implements Policy
         double alpha = read.para_wrapper.QoS_preference;
         double W_i = read.para_wrapper.query_weight;
         
-        double QC_k = read.para_wrapper.QC_k;
-        double UC_k = read.para_wrapper.UC_k;
+        double QC_k = read.para_wrapper.estimated_QC_k;
+        double UC_k = read.para_wrapper.estimated_UC_k;
         
         if (read.para_wrapper.isInstalled || writeTask == null)
         {
