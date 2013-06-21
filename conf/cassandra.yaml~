@@ -678,4 +678,6 @@ preheat_kernel_page_cache: false
 
 # specify the mechanism among On Demand (OD), Hybrid On Demand (HOD), Freshness/Tardiness (FIT)
 mechanism_type: OD
+
+# specify the policy among First-Come-First-Served (FCFS), Earliest Deadline First (EDF)
 policy_type: FCFS
