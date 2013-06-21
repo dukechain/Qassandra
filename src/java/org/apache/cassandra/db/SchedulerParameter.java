@@ -132,6 +132,11 @@ public class SchedulerParameter
         return sb.toString();
     }
     
+    public void set_actual_QC_k()
+    {
+        actual_QC_k = local_finished_time - local_start_time;
+    }
+    
     public ByteBuffer toByteBuffer()
     {
         return toByteBuffer(toString());

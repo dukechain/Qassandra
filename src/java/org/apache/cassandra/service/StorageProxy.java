@@ -1242,10 +1242,14 @@ public class StorageProxy implements StorageProxyMBean
         {
             logger.trace("LocalReadRunnable reading {}", command);
 
+            command.para_wrapper.local_start_time = System.currentTimeMillis();
+            
             Table table = Table.open(command.table);
             Row r = command.getRow(table);
             
-            
+            command.para_wrapper.local_finished_time = System.currentTimeMillis();
+            // chen add
+            command.para_wrapper.set_actual_QC_k();
             
             ReadResponse result = ReadVerbHandler.getResponse(command, r);
             MessagingService.instance().addLatency(FBUtilities.getBroadcastAddress(), System.currentTimeMillis() - start);
