@@ -532,6 +532,14 @@ struct CfSplit {
     3: required i64 row_count
 }
 
+/** Reprensents the SLA and FLA */
+struct Agreement_parameters {
+    1: required i64 tardiness_deadline = -1,
+    2: required i64 staleness_deadline = -1,
+    3: optional double QoS_preference = 1,
+    4: optional double query_weight = 1
+}
+
 service Cassandra {
   # auth methods
   void login(1: required AuthenticationRequest auth_request) throws (1:AuthenticationException authnx, 2:AuthorizationException authzx),
@@ -550,6 +558,15 @@ service Cassandra {
                           3:required ConsistencyLevel consistency_level=ConsistencyLevel.ONE)
                       throws (1:InvalidRequestException ire, 2:NotFoundException nfe, 3:UnavailableException ue, 4:TimedOutException te),
 
+/**
+ the quality-aware get()
+*/
+  list<ColumnOrSuperColumn> get_Q(1:required binary key,
+                          2:required ColumnPath column_path,
+                          3:required ConsistencyLevel consistency_level=ConsistencyLevel.ONE,
+                          4:required Agreement_parameters agreement_para)
+                      throws (1:InvalidRequestException ire, 2:NotFoundException nfe, 3:UnavailableException ue, 4:TimedOutException te),
+
   /**
     Get the group of columns contained by column_parent (either a ColumnFamily name or a ColumnFamily/SuperColumn name
     pair) specified by the given SlicePredicate. If no matching values are found, an empty list is returned.
@@ -559,6 +576,15 @@ service Cassandra {
                                       3:required SlicePredicate predicate, 
                                       4:required ConsistencyLevel consistency_level=ConsistencyLevel.ONE)
                             throws (1:InvalidRequestException ire, 2:UnavailableException ue, 3:TimedOutException te),
+
+
+   list<ColumnOrSuperColumn> get_slice_Q(1:required binary key, 
+                                      2:required ColumnParent column_parent, 
+                                      3:required SlicePredicate predicate, 
+                                      4:required ConsistencyLevel consistency_level=ConsistencyLevel.ONE,
+                                      5:required Agreement_parameters agreement_para)
+                            throws (1:InvalidRequestException ire, 2:UnavailableException ue, 3:TimedOutException te),
+
 
   /**
     returns the number of columns matching <code>predicate</code> for a particular <code>key</code>, 
@@ -626,6 +652,7 @@ service Cassandra {
               3:required Column column,
               4:required ConsistencyLevel consistency_level=ConsistencyLevel.ONE)
        throws (1:InvalidRequestException ire, 2:UnavailableException ue, 3:TimedOutException te),
+
 
   /**
    * Increment or decrement a counter.
