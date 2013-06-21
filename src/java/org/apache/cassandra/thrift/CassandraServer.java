@@ -36,6 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.apache.cassandra.auth.Permission;
+import org.apache.cassandra.cli.CliParser.columnOrSuperColumn_return;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.config.DatabaseDescriptor;
 import org.apache.cassandra.config.KSMetaData;
@@ -309,6 +310,7 @@ public class CassandraServer implements Cassandra.Iface
 
         return columnFamiliesMap;
     }
+    
 
     private List<ColumnOrSuperColumn> thriftifyColumnFamily(ColumnFamily cf, boolean subcolumnsOnly, boolean reverseOrder)
     {
@@ -329,7 +331,11 @@ public class CassandraServer implements Cassandra.Iface
     public List<ColumnOrSuperColumn> get_slice(ByteBuffer key, ColumnParent column_parent, SlicePredicate predicate, ConsistencyLevel consistency_level)
     throws InvalidRequestException, UnavailableException, TimedOutException
     {
-        if (startSessionIfRequested())
+        
+       Agreement_parameters agreement = new Agreement_parameters();
+       
+       return get_slice_Q(key, column_parent, predicate, consistency_level, agreement);
+/*        if (startSessionIfRequested())
         {
             Map<String, String> traceParameters = ImmutableMap.of("key", ByteBufferUtil.bytesToHex(key),
                                                                   "column_parent", column_parent.toString(),
@@ -356,8 +362,43 @@ public class CassandraServer implements Cassandra.Iface
         finally
         {
             Tracing.instance().stopSession();
-        }
+        }*/
     }
+    
+    public List<ColumnOrSuperColumn> get_slice_Q(ByteBuffer key, ColumnParent column_parent, SlicePredicate predicate, 
+            ConsistencyLevel consistency_level, Agreement_parameters para_wrapper)
+            throws InvalidRequestException, UnavailableException, TimedOutException
+            {
+                if (startSessionIfRequested())
+                {
+                    Map<String, String> traceParameters = ImmutableMap.of("key", ByteBufferUtil.bytesToHex(key),
+                                                                          "column_parent", column_parent.toString(),
+                                                                          "predicate", predicate.toString(),
+                                                                          "consistency_level", consistency_level.name());
+                    Tracing.instance().begin("get_slice", traceParameters);
+                }
+                else
+                {
+                    logger.debug("get_slice");
+                }
+
+                try
+                {
+                    ClientState cState = state();
+                    String keyspace = cState.getKeyspace();
+                    state().hasColumnFamilyAccess(keyspace, column_parent.column_family, Permission.SELECT);
+                    return multigetSliceInternal(keyspace, Collections.singletonList(key), column_parent, predicate, 
+                            consistency_level, new SchedulerParameter(para_wrapper)).get(key);
+                }
+                catch (RequestValidationException e)
+                {
+                    throw ThriftConversion.toThrift(e);
+                }
+                finally
+                {
+                    Tracing.instance().stopSession();
+                }
+            }
 
     public Map<ByteBuffer, List<ColumnOrSuperColumn>> multiget_slice(List<ByteBuffer> keys, ColumnParent column_parent, SlicePredicate predicate, ConsistencyLevel consistency_level)
     throws InvalidRequestException, UnavailableException, TimedOutException
@@ -441,6 +482,56 @@ public class CassandraServer implements Cassandra.Iface
 
         return getSlice(commands, column_parent.isSetSuper_column(), consistencyLevel);
     }
+    
+    private Map<ByteBuffer, List<ColumnOrSuperColumn>> multigetSliceInternal(String keyspace, List<ByteBuffer> keys, 
+            ColumnParent column_parent, SlicePredicate predicate, ConsistencyLevel consistency_level,
+            SchedulerParameter para_wrapper)
+            throws org.apache.cassandra.exceptions.InvalidRequestException, UnavailableException, TimedOutException
+            {
+                CFMetaData metadata = ThriftValidation.validateColumnFamily(keyspace, column_parent.column_family);
+                ThriftValidation.validateColumnParent(metadata, column_parent);
+                ThriftValidation.validatePredicate(metadata, column_parent, predicate);
+
+                org.apache.cassandra.db.ConsistencyLevel consistencyLevel = ThriftConversion.fromThrift(consistency_level);
+                consistencyLevel.validateForRead(keyspace);
+
+                List<ReadCommand> commands = new ArrayList<ReadCommand>(keys.size());
+                IDiskAtomFilter filter;
+                if (predicate.column_names != null)
+                {
+                    if (metadata.isSuper())
+                    {
+                        CompositeType type = (CompositeType)metadata.comparator;
+                        SortedSet s = new TreeSet<ByteBuffer>(column_parent.isSetSuper_column() ? type.types.get(1) : type.types.get(0));
+                        s.addAll(predicate.column_names);
+                        filter = SuperColumns.fromSCNamesFilter(type, column_parent.bufferForSuper_column(), new NamesQueryFilter(s));
+                    }
+                    else
+                    {
+                        SortedSet s = new TreeSet<ByteBuffer>(metadata.comparator);
+                        s.addAll(predicate.column_names);
+                        filter = new NamesQueryFilter(s);
+                    }
+                }
+                else
+                {
+                    SliceRange range = predicate.slice_range;
+                    filter = new SliceQueryFilter(range.start, range.finish, range.reversed, range.count);
+                    if (metadata.isSuper())
+                        filter = SuperColumns.fromSCFilter((CompositeType)metadata.comparator, column_parent.bufferForSuper_column(), filter);
+                }
+
+                for (ByteBuffer key: keys)
+                {
+                    ThriftValidation.validateKey(metadata, key);
+                    // Note that we should not share a slice filter amongst the command, due to SliceQueryFilter not  being immutable
+                    // due to its columnCounter used by the lastCounted() method (also see SelectStatement.getSliceCommands)
+                    commands.add(ReadCommand.create(keyspace, key, column_parent.getColumn_family(), 
+                            filter.cloneShallow(), para_wrapper));
+                }
+
+                return getSlice(commands, column_parent.isSetSuper_column(), consistencyLevel);
+            }
 
     private ColumnOrSuperColumn internal_get(ByteBuffer key, ColumnPath column_path, ConsistencyLevel consistency_level)
     throws RequestValidationException, NotFoundException, UnavailableException, TimedOutException
@@ -537,7 +628,13 @@ public class CassandraServer implements Cassandra.Iface
     public ColumnOrSuperColumn get(ByteBuffer key, ColumnPath column_path, ConsistencyLevel consistency_level)
     throws InvalidRequestException, NotFoundException, UnavailableException, TimedOutException
     {
-        if (startSessionIfRequested())
+        Agreement_parameters agreement = new Agreement_parameters();
+        
+        List<ColumnOrSuperColumn> cols = 
+                get_Q(key, column_path, consistency_level, agreement);
+        
+        return cols.get(0);
+        /*if (startSessionIfRequested())
         {
             Map<String, String> traceParameters = ImmutableMap.of("key", ByteBufferUtil.bytesToHex(key),
                                                                   "column_path", column_path.toString(),
@@ -560,7 +657,7 @@ public class CassandraServer implements Cassandra.Iface
         finally
         {
             Tracing.instance().stopSession();
-        }
+        }*/
     }
     
     /**
