@@ -738,19 +738,25 @@ public final class MessagingService implements MessagingServiceMBean
         
         if (IsUserOperation.isUserMessage(message))
         {
+            if(message.payload instanceof ReadCommand)
+            {
+                ((ReadCommand) message.payload).para_wrapper.local_arrival_time = System.currentTimeMillis();
+            }
+            
             runnable = new Chen_MessageDeliveryTask(message, id, timestamp);
             stage = StageManager.getStage(Stage.READ_MUTATION);
         }
         else {
             runnable = new MessageDeliveryTask(message, id, timestamp);
             stage = StageManager.getStage(message.getMessageType());
+            
+            assert stage != null : "No stage for message type " + message.verb;
+            stage.execute(runnable);
         }
         //...............
         
         //ExecutorService stage = StageManager.getStage(message.getMessageType());
-        assert stage != null : "No stage for message type " + message.verb;
-
-        stage.execute(runnable);
+       
     }
 
     public void setCallbackForTests(int messageId, CallbackInfo callback)

@@ -22,9 +22,11 @@ public class SchedulerParameter
     public boolean isInstalled = true;
     
     //important timestamp
-    public long issue_time = -1;
-    public long arrival_time = -1;
+    public long client_issue_time = -1;
+    public long client_finished_time = -1;
+    public long client_latency = -1;
     
+    public long local_arrival_time = -1;
     public long local_start_time = -1;
     public long local_finished_time = -1;
     
@@ -37,6 +39,9 @@ public class SchedulerParameter
     public long actual_UC_k = -1;
     
     private static final String Token = ",";
+    
+    public SchedulerParameter() {
+    }
     
     
     public SchedulerParameter(long tardiness_deadline, long staleness_deadline) {
@@ -76,11 +81,14 @@ public class SchedulerParameter
         
         isInstalled = Boolean.parseBoolean(tokenizer.nextToken());
         
-        issue_time = Long.parseLong(tokenizer.nextToken());
-        arrival_time = Long.parseLong(tokenizer.nextToken());
+        client_issue_time = Long.parseLong(tokenizer.nextToken());
+        client_finished_time = Long.parseLong(tokenizer.nextToken());
+        client_latency = Long.parseLong(tokenizer.nextToken());
         
+        local_arrival_time = Long.parseLong(tokenizer.nextToken());
         local_start_time = Long.parseLong(tokenizer.nextToken());
         local_finished_time = Long.parseLong(tokenizer.nextToken());
+        
         
         estimated_QC_k = Long.parseLong(tokenizer.nextToken());
         estimated_UC_k = Long.parseLong(tokenizer.nextToken());
@@ -110,11 +118,15 @@ public class SchedulerParameter
         sb.append(isInstalled);
         sb.append(Token);
         
-        sb.append(issue_time);
+        sb.append(client_issue_time);
         sb.append(Token);
-        sb.append(arrival_time);
+        sb.append(client_finished_time);
+        sb.append(Token);
+        sb.append(client_latency);
         sb.append(Token);
         
+        sb.append(local_arrival_time);
+        sb.append(Token);
         sb.append(local_start_time);
         sb.append(Token);
         sb.append(local_finished_time);

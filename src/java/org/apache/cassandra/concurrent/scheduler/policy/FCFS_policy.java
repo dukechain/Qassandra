@@ -16,7 +16,7 @@ public class FCFS_policy implements Policy
     {
         ReadCommand rc = readTask.getReadCommand();
         
-        long arrival_time = rc.para_wrapper.arrival_time;
+        long arrival_time = rc.para_wrapper.local_arrival_time;
         
         if (arrival_time != 0)
         {

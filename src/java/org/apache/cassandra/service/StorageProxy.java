@@ -1136,7 +1136,7 @@ public class StorageProxy implements StorageProxyMBean
                         exec.command.maybeTrim(row);
                         
                         /***/
-                        if (row.cf != null)
+                        if (IsUserOperation.isUserReadCommand(exec.command)&&row.cf != null)
                         {
                             row.addSchedulerWrapper(exec.command.para_wrapper);
                         }
@@ -1242,14 +1242,25 @@ public class StorageProxy implements StorageProxyMBean
         {
             logger.trace("LocalReadRunnable reading {}", command);
 
-            command.para_wrapper.local_start_time = System.currentTimeMillis();
+            Table table;
+            Row r;
             
-            Table table = Table.open(command.table);
-            Row r = command.getRow(table);
+            if (IsUserOperation.isUserReadCommand(command))
+            {
+                command.para_wrapper.local_start_time = System.currentTimeMillis();
+                
+                table = Table.open(command.table);
+                r = command.getRow(table);
+                
+                command.para_wrapper.local_finished_time = System.currentTimeMillis();
+                // chen add
+                command.para_wrapper.set_actual_QC_k();
+            }
+            else {
+                table = Table.open(command.table);
+                r = command.getRow(table);
+            }
             
-            command.para_wrapper.local_finished_time = System.currentTimeMillis();
-            // chen add
-            command.para_wrapper.set_actual_QC_k();
             
             ReadResponse result = ReadVerbHandler.getResponse(command, r);
             MessagingService.instance().addLatency(FBUtilities.getBroadcastAddress(), System.currentTimeMillis() - start);

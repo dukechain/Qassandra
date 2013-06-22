@@ -78,6 +78,8 @@ public abstract class AbstractReadExecutor
             
             if (IsUserOperation.isUserReadCommand(command))
             {
+                command.para_wrapper.local_arrival_time = System.currentTimeMillis();
+                
                 StageManager.getStage(Stage.READ_MUTATION).execute(new LocalReadRunnable(command, handler));
             }
             else {
