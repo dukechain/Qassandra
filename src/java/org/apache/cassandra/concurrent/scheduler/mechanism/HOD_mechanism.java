@@ -37,6 +37,8 @@ public class HOD_mechanism extends Chen_JMXConfigurableThreadPoolExecutor
         {
             ReadCommand rc = task.getReadCommand();
             
+            rc.para_wrapper.staleness_deadline = Long.MAX_VALUE;
+            
             List<RWTask> writetask = removeWritesonGivenKey(rc.key);
             
             if (writetask != null)

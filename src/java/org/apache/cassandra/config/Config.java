@@ -174,6 +174,7 @@ public class Config
 
     private static boolean outboundBindAny = false;
     
+    //chen add
     public String mechanism_type = "OD";
     public String policy_type = "FCFS";
 

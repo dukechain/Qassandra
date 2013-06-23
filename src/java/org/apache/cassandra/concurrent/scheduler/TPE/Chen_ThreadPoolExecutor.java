@@ -1722,9 +1722,9 @@ public class Chen_ThreadPoolExecutor extends ThreadPoolExecutor {
         
         for (Runnable r: writeQueue)
         {
-            Chen_MessageDeliveryTask task = (Chen_MessageDeliveryTask) r;
+            RWTask task = (RWTask) r;
             
-            RowMutation rm = (RowMutation)task.getMessage().payload;
+            RowMutation rm = task.getRowMutation();
             
             if(key.equals(rm.key())) {
                 writes.add((RWTask)r);
@@ -1757,9 +1757,9 @@ public class Chen_ThreadPoolExecutor extends ThreadPoolExecutor {
         
         for (Runnable r: writeQueue)
         {
-            Chen_MessageDeliveryTask task = (Chen_MessageDeliveryTask) r;
+            RWTask task = (RWTask) r;
             
-            RowMutation rm = (RowMutation)task.getMessage().payload;
+            RowMutation rm = task.getRowMutation();
             
             if(key.equals(rm.key())) {
                 writes.add((RWTask)r);

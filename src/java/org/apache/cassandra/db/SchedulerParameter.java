@@ -38,6 +38,9 @@ public class SchedulerParameter
     public long actual_QC_k = -1;
     public long actual_UC_k = -1;
     
+    
+    public long first_unapplied_time = -1;
+    
     private static final String Token = ",";
     
     public SchedulerParameter() {
@@ -95,6 +98,8 @@ public class SchedulerParameter
         
         actual_QC_k = Long.parseLong(tokenizer.nextToken());
         actual_UC_k = Long.parseLong(tokenizer.nextToken());      
+        
+        first_unapplied_time = Long.parseLong(tokenizer.nextToken());
     }
     
     public SchedulerParameter(ByteBuffer bb) {
@@ -140,6 +145,9 @@ public class SchedulerParameter
         sb.append(actual_QC_k);
         sb.append(Token);
         sb.append(actual_UC_k);
+        sb.append(Token);
+        
+        sb.append(first_unapplied_time);
         
         return sb.toString();
     }

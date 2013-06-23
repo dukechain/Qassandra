@@ -29,6 +29,8 @@ public class OD_mechanism extends Chen_JMXConfigurableThreadPoolExecutor
         if (task.getMessageType() == MessagingService.Verb.READ)
         {
             ReadCommand rc = task.getReadCommand();
+            
+            rc.para_wrapper.staleness_deadline = Long.MAX_VALUE;
 
             //remove 
             List<RWTask> writetask = removeWritesonGivenKey(rc.key);

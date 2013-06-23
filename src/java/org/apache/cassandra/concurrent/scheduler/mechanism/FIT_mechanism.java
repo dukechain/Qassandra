@@ -43,6 +43,8 @@ public class FIT_mechanism extends Chen_JMXConfigurableThreadPoolExecutor
             
             if (rc.para_wrapper.isInstalled)
             {
+                rc.para_wrapper.staleness_deadline = Long.MAX_VALUE;
+                
                 //remove 
                 List<RWTask> writetask = removeWritesonGivenKey(rc.key);
                 

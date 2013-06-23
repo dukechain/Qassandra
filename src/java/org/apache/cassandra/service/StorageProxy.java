@@ -863,6 +863,12 @@ public class StorageProxy implements StorageProxyMBean
                 rm.apply();
                 responseHandler.response(null);
             }
+
+            @Override
+            public RowMutation getRowMutation()
+            {
+                return rm;
+            }
         };
         
         // chen modify the stage type
@@ -1272,6 +1278,7 @@ public class StorageProxy implements StorageProxyMBean
 
             return command;
         }
+
     }
 
     static class LocalRangeSliceRunnable extends DroppableRunnable
@@ -1295,6 +1302,8 @@ public class StorageProxy implements StorageProxyMBean
             MessagingService.instance().addLatency(FBUtilities.getBroadcastAddress(), System.currentTimeMillis() - start);
             handler.response(result);
         }
+
+       
 
     }
 
@@ -1818,6 +1827,12 @@ public class StorageProxy implements StorageProxyMBean
             else {
                 return null;
             }
+        }
+        
+        
+        public RowMutation getRowMutation()
+        {
+            return null;
         }
         
        

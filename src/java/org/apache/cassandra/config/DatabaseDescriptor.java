@@ -99,6 +99,9 @@ public class DatabaseDescriptor
             try
             {
                 applyConfig(loadConfig());
+                
+                logger.info("Employing "+conf.policy_type 
+                        +"-"+ conf.mechanism_type +" scheduler");
             }
             catch (ConfigurationException e)
             {
@@ -1229,5 +1232,16 @@ public class DatabaseDescriptor
     public static boolean shouldPreheatPageCache()
     {
         return conf.preheat_kernel_page_cache;
+    }
+    
+    
+    public static String getMechanism()
+    {
+        return conf.mechanism_type;
+    }
+    
+    public static String getPolicy()
+    {
+        return conf.policy_type;
     }
 }

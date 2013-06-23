@@ -19,9 +19,9 @@ package org.apache.cassandra.net;
 
 
 
-import org.apache.cassandra.concurrent.Stage;
 import org.apache.cassandra.concurrent.scheduler.RWTask;
 import org.apache.cassandra.db.ReadCommand;
+import org.apache.cassandra.db.RowMutation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -142,6 +142,13 @@ public class Chen_MessageDeliveryTask extends RWTask
         assert (message.payload instanceof ReadCommand);
 
         return (ReadCommand)message.payload;
+    }
+
+    @Override
+    public RowMutation getRowMutation()
+    {
+        assert (message.payload instanceof RowMutation);
+        return (RowMutation)message.payload;
     }
     
 }

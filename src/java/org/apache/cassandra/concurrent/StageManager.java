@@ -25,9 +25,11 @@ import org.slf4j.LoggerFactory;
 
 import org.apache.cassandra.concurrent.scheduler.SchedulerFactory;
 import org.apache.cassandra.concurrent.scheduler.TPE.Chen_ThreadPoolExecutor;
+import org.apache.cassandra.config.DatabaseDescriptor;
 
 import org.apache.cassandra.net.MessagingService;
 import org.apache.cassandra.utils.FBUtilities;
+import org.apache.pig.parser.AliasMasker.cond_return;
 
 
 import static org.apache.cassandra.config.DatabaseDescriptor.*;
@@ -109,7 +111,9 @@ public class StageManager
                                                      new NamedThreadFactory(stage.getJmxName()),
                                                      stage.getJmxType());*/
 
-        return SchedulerFactory.createScheduler("OD", "EDF", 
+        return SchedulerFactory.createScheduler(
+                DatabaseDescriptor.getMechanism(), 
+                DatabaseDescriptor.getPolicy(), 
                 numThreads, 
                 KEEPALIVE, 
                 TimeUnit.SECONDS, 

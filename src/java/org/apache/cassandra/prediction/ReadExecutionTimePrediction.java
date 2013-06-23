@@ -10,6 +10,6 @@ public class ReadExecutionTimePrediction implements ExecutionTimePrediction
     public long time_prediction(RWTask task)
     {
         // TODO Auto-generated method stub
-        return 0;
+        return 10;
     }
 }
