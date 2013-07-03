@@ -9,7 +9,7 @@ public class CostData implements Serializable
 
     private String description;
     
-    CostData() {
+    public CostData() {
         longData = 0;
         description = null;
     }
