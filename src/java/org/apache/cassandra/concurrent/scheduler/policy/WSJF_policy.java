@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.apache.cassandra.concurrent.scheduler.RWTask;
 import org.apache.cassandra.db.ReadCommand;
+import org.apache.cassandra.prediction.ReadExecutionTimePrediction;
 
 
 public class WSJF_policy implements Policy
@@ -15,6 +16,13 @@ public class WSJF_policy implements Policy
         
         double alpha = read.para_wrapper.QoS_preference;
         double W_i = read.para_wrapper.query_weight;
+        
+        
+        if (read.para_wrapper.estimated_QC_k == -1)
+        {
+            read.para_wrapper.estimated_QC_k = new 
+                    ReadExecutionTimePrediction().time_prediction(readTask);
+        }
         
         double QC_k = read.para_wrapper.estimated_QC_k;
         double UC_k = read.para_wrapper.estimated_UC_k;

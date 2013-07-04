@@ -148,6 +148,20 @@ public class DatabaseDescriptor
             throw new ConfigurationException("Error Setting on Policy");
         }
         
+        if (conf.berkeleyDB_path == null)
+        {
+            throw new ConfigurationException("Error Setting on BDB");
+        }
+        
+        File bdb = new File(conf.berkeleyDB_path);
+        
+        if (!bdb.exists())
+        {
+            bdb.mkdirs();
+        }
+        
+        logger.info("Berkeley DB path: " + conf.berkeleyDB_path);
+        
         /* end */
 
         if (conf.commitlog_sync == null)
@@ -1243,5 +1257,10 @@ public class DatabaseDescriptor
     public static String getPolicy()
     {
         return conf.policy_type;
+    }
+    
+    public static String getBerkeleyDB_path()
+    {
+        return conf.berkeleyDB_path;
     }
 }

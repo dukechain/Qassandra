@@ -11,8 +11,8 @@ import org.apache.cassandra.concurrent.scheduler.TPE.Chen_JMXConfigurableThreadP
 import org.apache.cassandra.concurrent.scheduler.policy.Policy;
 import org.apache.cassandra.db.ReadCommand;
 import org.apache.cassandra.net.MessagingService;
-import org.apache.cassandra.prediction.ExecutionTimePrediction;
 import org.apache.cassandra.prediction.ReadExecutionTimePrediction;
+import org.apache.cassandra.prediction.WriteExecutionTimePrediction;
 
 
 public class FIT_mechanism extends Chen_JMXConfigurableThreadPoolExecutor
@@ -59,16 +59,18 @@ public class FIT_mechanism extends Chen_JMXConfigurableThreadPoolExecutor
     
     @Override
     protected void resetPriority(long tau) {
+        ReadExecutionTimePrediction readPredict = new ReadExecutionTimePrediction();
+        WriteExecutionTimePrediction writePredict = new WriteExecutionTimePrediction();
+        
         for (Runnable r : getQueue())
         {            
-            ExecutionTimePrediction prediction = new ReadExecutionTimePrediction();
-            
             RWTask readtask = (RWTask) r;
             ReadCommand read = readtask.getReadCommand();
             
-            read.para_wrapper.estimated_QC_k = prediction.time_prediction(readtask);
+            read.para_wrapper.estimated_QC_k = readPredict.time_prediction(readtask);
             
-            //read.para_wrapper.UC_k = prediction.time_prediction(getWritesonGivenKey((RWTask)w));
+            read.para_wrapper.estimated_UC_k = 
+                    writePredict.time_prediction(getWritesonGivenKey((RWTask)readtask));
             
             double Ps = penalty_skipping_update(read, tau);
             double Pi = penalty_installing_update(read, tau);

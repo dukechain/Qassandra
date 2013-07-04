@@ -3,7 +3,6 @@ package org.apache.cassandra.prediction;
 import java.nio.ByteBuffer;
 
 import org.apache.cassandra.concurrent.scheduler.RWTask;
-import org.apache.cassandra.config.DatabaseDescriptor;
 import org.apache.cassandra.db.ReadCommand;
 import org.apache.cassandra.prediction.BDBStorage.ReadBDBStorage;
 import org.apache.cassandra.prediction.BDBStorageSingleton.ReadBDBStorageSingleton;
@@ -20,7 +19,7 @@ public class ReadExecutionTimePrediction extends ExecutionTimePrediction
         
         long time = 0l;
         
-        if (DatabaseDescriptor.getPolicy().equals("FCFS"))
+        if (isBDBTransaction())
         {
             time = new ReadBDBStorage().getValue(key);
         }
@@ -41,7 +40,7 @@ public class ReadExecutionTimePrediction extends ExecutionTimePrediction
     {
         long st = System.currentTimeMillis();
         
-        if (DatabaseDescriptor.getPolicy().equals("FCFS"))
+        if (isBDBTransaction())
         {
             new ReadBDBStorage().setValue(key, cost);
         }

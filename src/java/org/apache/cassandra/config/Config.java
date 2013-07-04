@@ -22,6 +22,7 @@ import org.apache.cassandra.config.EncryptionOptions.ClientEncryptionOptions;
 import org.apache.cassandra.config.EncryptionOptions.ServerEncryptionOptions;
 import org.apache.cassandra.io.util.NativeAllocator;
 import org.apache.cassandra.utils.FBUtilities;
+import org.apache.taglibs.standard.lang.jstl.test.Bean1;
 
 /**
  * A class that contains configuration properties for the cassandra node it runs within.
@@ -177,6 +178,9 @@ public class Config
     //chen add
     public String mechanism_type = "OD";
     public String policy_type = "FCFS";
+    
+    public String berkeleyDB_path = null;
+    
 
     public static boolean getOutboundBindAny()
     {

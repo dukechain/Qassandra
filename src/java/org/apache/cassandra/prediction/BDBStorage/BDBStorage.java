@@ -8,10 +8,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sleepycat.bind.EntryBinding;
-import com.sleepycat.bind.serial.SerialBinding;
 import com.sleepycat.bind.serial.StoredClassCatalog;
 import com.sleepycat.je.Database;
-import com.sleepycat.je.DatabaseConfig;
 import com.sleepycat.je.DatabaseEntry;
 import com.sleepycat.je.Environment;
 import com.sleepycat.je.EnvironmentConfig;
@@ -30,7 +28,7 @@ public abstract class BDBStorage
     
     Database myDatabase = null;
     StoredClassCatalog myclassCatalog; 
-    EntryBinding mydataBinding;
+    EntryBinding<CostData> mydataBinding;
 
     protected abstract void initdatabase();
     

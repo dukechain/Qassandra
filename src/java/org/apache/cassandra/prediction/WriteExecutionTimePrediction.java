@@ -4,7 +4,6 @@ import java.nio.ByteBuffer;
 import java.util.List;
 
 import org.apache.cassandra.concurrent.scheduler.RWTask;
-import org.apache.cassandra.config.DatabaseDescriptor;
 import org.apache.cassandra.db.RowMutation;
 import org.apache.cassandra.prediction.BDBStorage.WriteBDBStorage;
 import org.apache.cassandra.prediction.BDBStorageSingleton.WriteBDBStorageSingleton;
@@ -17,7 +16,7 @@ public class WriteExecutionTimePrediction extends ExecutionTimePrediction
  
         long time = 0l;
         
-        if (DatabaseDescriptor.getPolicy().equals("FCFS"))
+        if (isBDBTransaction())
         {
             time = new WriteBDBStorage().getValue(key);
         }
@@ -35,7 +34,7 @@ public class WriteExecutionTimePrediction extends ExecutionTimePrediction
 
         long st = System.currentTimeMillis();
         
-        if (DatabaseDescriptor.getPolicy().equals("FCFS"))
+        if (isBDBTransaction())
         {
             new WriteBDBStorage().setValue(key, cost);
         }

@@ -61,6 +61,8 @@ import org.apache.cassandra.locator.IEndpointSnitch;
 import org.apache.cassandra.locator.TokenMetadata;
 import org.apache.cassandra.metrics.ClientRequestMetrics;
 import org.apache.cassandra.net.*;
+import org.apache.cassandra.prediction.ReadExecutionTimePrediction;
+import org.apache.cassandra.prediction.WriteExecutionTimePrediction;
 import org.apache.cassandra.service.paxos.*;
 import org.apache.cassandra.tracing.Tracing;
 import org.apache.cassandra.utils.*;
@@ -860,7 +862,24 @@ public class StorageProxy implements StorageProxyMBean
         {
             public void runMayThrow()
             {
+                // chen add
+                long start = System.currentTimeMillis();///
+                
                 rm.apply();
+
+                long end = System.currentTimeMillis();///
+                
+                /***/
+                if (IsUserOperation.isUserRowMutation(rm))
+                {
+                    WriteExecutionTimePrediction prediction = 
+                            new WriteExecutionTimePrediction();
+                    
+                    prediction.time_save(rm, end-start);
+                }
+                /**/
+                
+                
                 responseHandler.response(null);
             }
 
@@ -1142,9 +1161,10 @@ public class StorageProxy implements StorageProxyMBean
                         exec.command.maybeTrim(row);
                         
                         /***/
-                        if (IsUserOperation.isUserReadCommand(exec.command)&&row.cf != null)
+                        if (IsUserOperation.isUserReadCommand(exec.command))
                         {
-                            row.addSchedulerWrapper(exec.command.para_wrapper);
+                            
+                            row.addSchedulerWrapper(exec.command);
                         }
                         /***/
                         
@@ -1172,6 +1192,10 @@ public class StorageProxy implements StorageProxyMBean
                     for (InetAddress endpoint : exec.handler.endpoints)
                         MessagingService.instance().sendRR(message, endpoint, repairHandler);
                 }
+                catch (Exception e) {
+                    logger.error("here", e);
+                }
+                
             }
 
             if (commandsToRetry != Collections.EMPTY_LIST)
@@ -1261,6 +1285,10 @@ public class StorageProxy implements StorageProxyMBean
                 command.para_wrapper.local_finished_time = System.currentTimeMillis();
                 // chen add
                 command.para_wrapper.set_actual_QC_k();
+                
+                ReadExecutionTimePrediction predict = new ReadExecutionTimePrediction();
+                
+                predict.time_save(command, command.para_wrapper.actual_QC_k);
             }
             else {
                 table = Table.open(command.table);

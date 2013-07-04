@@ -2,9 +2,10 @@ package org.apache.cassandra.prediction;
 
 import java.io.Serializable;
 
-@SuppressWarnings("serial")
 public class CostData implements Serializable
 {
+    private static final long serialVersionUID = 1L;
+    
     private long longData;
 
     private String description;

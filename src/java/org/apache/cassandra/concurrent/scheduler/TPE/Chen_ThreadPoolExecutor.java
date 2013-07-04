@@ -732,6 +732,7 @@ public class Chen_ThreadPoolExecutor extends ThreadPoolExecutor {
                 executeRead(command);
                 
             } else if (taskType == MessagingService.Verb.MUTATION) {
+                task.setPriority(Double.MAX_VALUE);
                 executeWrite(command);
             }
             

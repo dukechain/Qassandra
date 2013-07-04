@@ -9,6 +9,11 @@ import com.sleepycat.je.DatabaseConfig;
 public class ReadBDBStorage extends BDBStorage
 {
 
+    public ReadBDBStorage()
+    {
+        super();
+    }
+    
     @Override
     protected void initdatabase()
     {

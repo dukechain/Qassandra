@@ -19,9 +19,12 @@ package org.apache.cassandra.db;
 
 import java.io.*;
 import java.nio.ByteBuffer;
+import java.util.concurrent.atomic.AtomicStampedReference;
 
+import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.db.filter.IDiskAtomFilter;
 import org.apache.cassandra.db.marshal.CompositeType;
+import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.cassandra.io.IVersionedSerializer;
 import org.apache.cassandra.io.util.DataOutputBuffer;
 import org.apache.cassandra.net.MessagingService;
@@ -33,7 +36,9 @@ public class Row
     public static final RowSerializer serializer = new RowSerializer();
 
     public final DecoratedKey key;
-    public final ColumnFamily cf;
+    //public final ColumnFamily cf;
+    
+    public ColumnFamily cf;
 
     public Row(DecoratedKey key, ColumnFamily cf)
     {
@@ -75,6 +80,21 @@ public class Row
         }
         
         return ByteBuffer.wrap(array);
+    }
+    
+    public void addSchedulerWrapper(ReadCommand rc) 
+    {
+        if (cf == null)
+        {
+            CFMetaData cfMetaData = new CFMetaData(rc.getKeyspace(), 
+                    rc.getColumnFamilyName(), 
+                    ColumnFamilyType.Standard, 
+                    UTF8Type.instance);
+            
+            cf = AtomicSortedColumns.factory.create(cfMetaData);
+        }
+        
+        addSchedulerWrapper(rc.para_wrapper);
     }
     
     public void addSchedulerWrapper(SchedulerParameter para) 
