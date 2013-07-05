@@ -14,7 +14,9 @@ import org.apache.cassandra.net.MessagingService;
 import org.apache.cassandra.prediction.ReadExecutionTimePrediction;
 import org.apache.cassandra.prediction.WriteExecutionTimePrediction;
 
-
+/**
+ * Freshness/Tardiness mechanism
+ */
 public class FIT_mechanism extends Chen_JMXConfigurableThreadPoolExecutor
 {
 

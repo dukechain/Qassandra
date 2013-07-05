@@ -6,6 +6,9 @@ import com.sleepycat.bind.serial.SerialBinding;
 import com.sleepycat.bind.serial.StoredClassCatalog;
 import com.sleepycat.je.DatabaseConfig;
 
+/**
+ * Berkeley DB storage for Update
+ */
 public class WriteBDBStorage extends BDBStorage
 {
 

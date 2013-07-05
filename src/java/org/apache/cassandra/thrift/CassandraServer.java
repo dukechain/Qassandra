@@ -36,7 +36,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.apache.cassandra.auth.Permission;
-import org.apache.cassandra.cli.CliParser.columnOrSuperColumn_return;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.config.DatabaseDescriptor;
 import org.apache.cassandra.config.KSMetaData;
@@ -365,6 +364,10 @@ public class CassandraServer implements Cassandra.Iface
         }*/
     }
     
+   
+    /**
+     * 
+     */
     public List<ColumnOrSuperColumn> get_slice_Q(ByteBuffer key, ColumnParent column_parent, SlicePredicate predicate, 
             ConsistencyLevel consistency_level, Agreement_parameters para_wrapper)
             throws InvalidRequestException, UnavailableException, TimedOutException
@@ -660,20 +663,7 @@ public class CassandraServer implements Cassandra.Iface
         }*/
     }
     
-    /**
-     * 
-     * add API parameters
-     * @param key
-     * @param column_path
-     * @param consistency_level
-     * @param tardiness_deadline
-     * @param staleness_deadline
-     * @return
-     * @throws InvalidRequestException
-     * @throws NotFoundException
-     * @throws UnavailableException
-     * @throws TimedOutException
-     */
+   
     public List<ColumnOrSuperColumn> get_Q(ByteBuffer key, ColumnPath column_path, ConsistencyLevel consistency_level,
             Agreement_parameters para_wrapper)
     throws InvalidRequestException, NotFoundException, UnavailableException, TimedOutException

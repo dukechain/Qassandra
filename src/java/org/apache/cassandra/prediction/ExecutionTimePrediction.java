@@ -5,6 +5,9 @@ import org.apache.cassandra.config.DatabaseDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * To predict the execution time 
+ */
 public abstract class ExecutionTimePrediction
 {
     protected static final Logger logger = LoggerFactory.getLogger(
@@ -16,6 +19,11 @@ public abstract class ExecutionTimePrediction
     
     public abstract void time_save(byte[] key, long cost);
     
+    /**
+     * 
+     * whether to control Berkeley DB in Transaction manner
+     * @return
+     */
     public boolean isBDBTransaction()
     {
         if (DatabaseDescriptor.getPolicy().equals("FCFS"))

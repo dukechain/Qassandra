@@ -11,6 +11,9 @@ import org.apache.cassandra.concurrent.scheduler.policy.Policy;
 import org.apache.cassandra.db.ReadCommand;
 import org.apache.cassandra.net.MessagingService;
 
+/**
+ * Hybrid On Demand mechanism
+ */
 public class HOD_mechanism extends Chen_JMXConfigurableThreadPoolExecutor
 {
 

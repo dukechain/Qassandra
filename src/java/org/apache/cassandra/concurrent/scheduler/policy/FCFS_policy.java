@@ -7,7 +7,10 @@ import java.util.List;
 import org.apache.cassandra.concurrent.scheduler.RWTask;
 import org.apache.cassandra.db.ReadCommand;
 
-
+/**
+ * 
+ * First Come First Served policy
+ */
 public class FCFS_policy implements Policy
 {
 

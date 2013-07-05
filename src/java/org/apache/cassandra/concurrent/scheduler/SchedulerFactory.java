@@ -15,7 +15,9 @@ import org.apache.cassandra.concurrent.scheduler.policy.Policy;
 import org.apache.cassandra.concurrent.scheduler.policy.WSJF_policy;
 
 
-
+/**
+ * the factory to create scheduler
+ */
 public class SchedulerFactory
 {
     

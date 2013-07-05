@@ -7,8 +7,9 @@ import java.util.StringTokenizer;
 
 import org.apache.cassandra.thrift.Agreement_parameters;
 
-
-
+/**
+ * The parameters for scheduler and it could be employed to evaluate the penalty
+ */
 public class SchedulerParameter
 {
     //user specification

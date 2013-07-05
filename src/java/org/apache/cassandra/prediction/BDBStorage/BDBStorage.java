@@ -11,11 +11,14 @@ import com.sleepycat.bind.EntryBinding;
 import com.sleepycat.bind.serial.StoredClassCatalog;
 import com.sleepycat.je.Database;
 import com.sleepycat.je.DatabaseEntry;
+import com.sleepycat.je.Durability;
 import com.sleepycat.je.Environment;
 import com.sleepycat.je.EnvironmentConfig;
 import com.sleepycat.je.LockMode;
 
-
+/**
+ * Berkeley DB storage
+ */
 public abstract class BDBStorage
 {
 
@@ -36,14 +39,12 @@ public abstract class BDBStorage
     {
          EnvironmentConfig envConfig = new EnvironmentConfig();
          
-         //envConfig.setTransactional(true);
+         envConfig.setTransactional(true);
          envConfig.setAllowCreate(true);
-         //envConfig.setDurability(Durability.COMMIT_WRITE_NO_SYNC);
+         envConfig.setDurability(Durability.COMMIT_WRITE_NO_SYNC);
          
-         //String path = "/home/xuchen/testcassandra/BDB";
          myDbEnvironment = new Environment(new File(DatabaseDescriptor.getBerkeleyDB_path()), envConfig);
 
-        // myDbEnvironment = new Environment(new File(path), envConfig);
          
          long st = System.currentTimeMillis();
          initdatabase();
@@ -77,21 +78,15 @@ public abstract class BDBStorage
             CostData retrievedData=(CostData)mydataBinding.entryToObject(theData);
             long en = System.currentTimeMillis();
             
-            if (retrievedData == null)
-            {
-                logger.error("we can not find READ cost for key="+new String(key));
-            }
-            else {
-                logger.debug("GET the READ cost for key="+new String(key)
-                    +" for "+(en-st)+"ms");
-            }
-            
             cost = retrievedData.getLong();
+            
+            logger.debug("GET the cost for key="+new String(key)
+            +" for "+(en-st)+"ms");
             
             cleanup();
         }
         catch(NullPointerException n) {
-            logger.error("we can not find READ cost for key="+new String(key));
+            logger.error("we can not find cost for key="+new String(key));
         }
         catch(Exception e) {
             logger.error(e.toString());

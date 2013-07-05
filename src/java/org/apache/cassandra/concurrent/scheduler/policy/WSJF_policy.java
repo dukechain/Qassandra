@@ -6,7 +6,10 @@ import org.apache.cassandra.concurrent.scheduler.RWTask;
 import org.apache.cassandra.db.ReadCommand;
 import org.apache.cassandra.prediction.ReadExecutionTimePrediction;
 
-
+/**
+ * 
+ * Weighted Shortest Job First policy
+ */
 public class WSJF_policy implements Policy
 {
     @Override

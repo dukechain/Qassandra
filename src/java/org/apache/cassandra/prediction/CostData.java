@@ -2,6 +2,9 @@ package org.apache.cassandra.prediction;
 
 import java.io.Serializable;
 
+/**
+ * describe the data stored in Berkeley DB
+ */
 public class CostData implements Serializable
 {
     private static final long serialVersionUID = 1L;

@@ -6,6 +6,9 @@ import com.sleepycat.bind.serial.SerialBinding;
 import com.sleepycat.bind.serial.StoredClassCatalog;
 import com.sleepycat.je.DatabaseConfig;
 
+/**
+ * Singleton version of BDBStorage for Query
+ */
 public class ReadBDBStorageSingleton extends BDBStorageSingleton
 { 
     private ReadBDBStorageSingleton()

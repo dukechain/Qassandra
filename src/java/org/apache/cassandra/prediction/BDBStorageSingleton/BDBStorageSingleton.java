@@ -15,6 +15,9 @@ import com.sleepycat.je.Environment;
 import com.sleepycat.je.EnvironmentConfig;
 import com.sleepycat.je.LockMode;
 
+/**
+ * Singleton version of BDBStorage
+ */
 public abstract class BDBStorageSingleton
 {
 
@@ -26,7 +29,7 @@ public abstract class BDBStorageSingleton
     
     Database myDatabase = null;
     StoredClassCatalog myclassCatalog; 
-    EntryBinding mydataBinding;
+    EntryBinding<CostData> mydataBinding;
     
     
     
@@ -38,10 +41,8 @@ public abstract class BDBStorageSingleton
          envConfig.setAllowCreate(true);
          //envConfig.setDurability(Durability.COMMIT_WRITE_NO_SYNC);
          
-         //String path = "/home/xuchen/testcassandra/BDB";
-         myDbEnvironment = new Environment(new File(DatabaseDescriptor.getBerkeleyDB_path()), envConfig);
-
-        // myDbEnvironment = new Environment(new File(path), envConfig);
+         myDbEnvironment = new Environment(new File(
+                 DatabaseDescriptor.getBerkeleyDB_path()), envConfig);
          
          long st = System.currentTimeMillis();
          initdatabase();
@@ -74,14 +75,9 @@ public abstract class BDBStorageSingleton
             CostData retrievedData=(CostData)mydataBinding.entryToObject(theData);
             long en = System.currentTimeMillis();
             
-            if (retrievedData == null)
-            {
-                logger.error("we can not find READ cost for key="+new String(key));
-            }
-            else {
-                logger.debug("GET the READ cost for key="+new String(key)
+            
+            logger.debug("GET the cost for key="+new String(key)
                     +" for "+(en-st)+"ms");
-            }
             
             cost = retrievedData.getLong();
             
@@ -114,8 +110,6 @@ public abstract class BDBStorageSingleton
             mydataBinding.objectToEntry(data2Store, theData);
     
             myDatabase.put(null, theKey, theData);
-            
-            logger.debug("Saving the READ cost for key="+new String(key));
             
             cleanup();
         }

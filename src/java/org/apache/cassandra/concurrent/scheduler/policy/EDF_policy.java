@@ -5,6 +5,11 @@ import java.util.List;
 import org.apache.cassandra.concurrent.scheduler.RWTask;
 import org.apache.cassandra.db.ReadCommand;
 
+
+/**
+ * 
+ * Earliest Deadline First policy
+ */
 public class EDF_policy implements Policy
 {
 

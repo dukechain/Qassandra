@@ -8,6 +8,9 @@ import org.apache.cassandra.db.RowMutation;
 import org.apache.cassandra.prediction.BDBStorage.WriteBDBStorage;
 import org.apache.cassandra.prediction.BDBStorageSingleton.WriteBDBStorageSingleton;
 
+/**
+ *  To predict the execution time of Update
+ */
 public class WriteExecutionTimePrediction extends ExecutionTimePrediction
 {
     @Override
@@ -45,7 +48,7 @@ public class WriteExecutionTimePrediction extends ExecutionTimePrediction
         
         long en = System.currentTimeMillis();
         
-        logger.debug("insert BDB of key="+new String(key)+" is "+(en-st)+" ms");
+        logger.debug("insert BDB of WRITE key="+new String(key)+" is "+(en-st)+" ms");
     }
 
     @Override

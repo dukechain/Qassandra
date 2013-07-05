@@ -8,7 +8,9 @@ import org.apache.cassandra.prediction.BDBStorage.ReadBDBStorage;
 import org.apache.cassandra.prediction.BDBStorageSingleton.ReadBDBStorageSingleton;
 
 
-
+/**
+ * To predict the execution time of Query
+ */
 public class ReadExecutionTimePrediction extends ExecutionTimePrediction
 {
 

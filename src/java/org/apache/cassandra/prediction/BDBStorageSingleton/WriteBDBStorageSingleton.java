@@ -6,6 +6,10 @@ import com.sleepycat.bind.serial.SerialBinding;
 import com.sleepycat.bind.serial.StoredClassCatalog;
 import com.sleepycat.je.DatabaseConfig;
 
+
+/**
+ * Singleton version of BDBStorage for Update
+ */
 public class WriteBDBStorageSingleton extends BDBStorageSingleton
 {
     private WriteBDBStorageSingleton()

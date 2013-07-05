@@ -11,6 +11,9 @@ import org.apache.cassandra.concurrent.scheduler.policy.Policy;
 import org.apache.cassandra.db.ReadCommand;
 import org.apache.cassandra.net.MessagingService;
 
+/**
+ * On Demand mechanism
+ */
 public class OD_mechanism extends Chen_JMXConfigurableThreadPoolExecutor
 {
     public OD_mechanism(int corePoolSize, long keepAliveTime, TimeUnit unit, BlockingQueue<Runnable> workQueue, NamedThreadFactory threadFactory,

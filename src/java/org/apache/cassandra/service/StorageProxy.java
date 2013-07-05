@@ -414,11 +414,11 @@ public class StorageProxy implements StorageProxyMBean
             // wait for writes.  throws TimeoutException if necessary
             for (AbstractWriteResponseHandler responseHandler : responseHandlers)
             {
-                responseHandler.get();
+                //responseHandler.get();
             }
 
         }
-        catch (WriteTimeoutException ex)
+        /*catch (WriteTimeoutException ex)
         {
             writeMetrics.timeouts.mark();
             ClientRequestMetrics.writeTimeouts.inc();
@@ -431,7 +431,7 @@ public class StorageProxy implements StorageProxyMBean
             }
             Tracing.trace("Write timeout");
             throw ex;
-        }
+        }*/
         catch (UnavailableException e)
         {
             writeMetrics.unavailables.mark();

@@ -4,7 +4,9 @@ import org.apache.cassandra.db.ReadCommand;
 import org.apache.cassandra.db.RowMutation;
 import org.apache.cassandra.net.MessagingService;
 
-
+/**
+ * abstract task of Read/Write
+ */
 public abstract class RWTask implements Runnable, Comparable<RWTask>
 {
     protected double priority;

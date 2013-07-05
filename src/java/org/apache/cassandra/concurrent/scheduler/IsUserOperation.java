@@ -4,6 +4,10 @@ import org.apache.cassandra.db.ReadCommand;
 import org.apache.cassandra.db.RowMutation;
 import org.apache.cassandra.net.MessageIn;
 
+/**
+ * 
+ * make difference between user operation and system behavior
+ */
 public class IsUserOperation
 {
     public static boolean isUserMessage(MessageIn message)
