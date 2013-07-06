@@ -577,7 +577,9 @@ service Cassandra {
                                       4:required ConsistencyLevel consistency_level=ConsistencyLevel.ONE)
                             throws (1:InvalidRequestException ire, 2:UnavailableException ue, 3:TimedOutException te),
 
-
+/**
+ the quality-aware get_slice()
+*/
    list<ColumnOrSuperColumn> get_slice_Q(1:required binary key, 
                                       2:required ColumnParent column_parent, 
                                       3:required SlicePredicate predicate, 
