@@ -69,6 +69,15 @@ public class Cassandra {
      */
     public List<ColumnOrSuperColumn> get_slice(ByteBuffer key, ColumnParent column_parent, SlicePredicate predicate, ConsistencyLevel consistency_level) throws InvalidRequestException, UnavailableException, TimedOutException, org.apache.thrift.TException;
 
+    /**
+     * the quality-aware get_slice()
+     * 
+     * @param key
+     * @param column_parent
+     * @param predicate
+     * @param consistency_level
+     * @param agreement_para
+     */
     public List<ColumnOrSuperColumn> get_slice_Q(ByteBuffer key, ColumnParent column_parent, SlicePredicate predicate, ConsistencyLevel consistency_level, Agreement_parameters agreement_para) throws InvalidRequestException, UnavailableException, TimedOutException, org.apache.thrift.TException;
 
     /**
