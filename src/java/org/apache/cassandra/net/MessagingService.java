@@ -735,7 +735,9 @@ public final class MessagingService implements MessagingServiceMBean
         Runnable runnable;
         ExecutorService stage;
         
-        if (IsUserOperation.isUserMessage(message))
+        if ((message.getMessageType().equals(Stage.READ)||
+                message.getMessageType().equals(Stage.MUTATION))
+                &&IsUserOperation.isUserMessage(message))
         {
             if(message.payload instanceof ReadCommand)
             {

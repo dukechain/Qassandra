@@ -99,6 +99,9 @@ class SliceByNamesReadCommandSerializer implements IVersionedSerializer<ReadComm
             out.writeUTF(command.cfName);
 
         NamesQueryFilter.serializer.serialize(command.filter, out, version);
+        
+        //chen add
+        SchedulerParameter.serializer.serialize(command.para_wrapper, out, version);
     }
 
     public ReadCommand deserialize(DataInput in, int version) throws IOException
@@ -153,6 +156,11 @@ class SliceByNamesReadCommandSerializer implements IVersionedSerializer<ReadComm
         }
 
         command.setDigestQuery(isDigest);
+        
+        // chen add
+        command.para_wrapper = SchedulerParameter.serializer.deserialize(in, version);
+        
+        
         return command;
     }
 
@@ -181,6 +189,10 @@ class SliceByNamesReadCommandSerializer implements IVersionedSerializer<ReadComm
         }
 
         size += NamesQueryFilter.serializer.serializedSize(command.filter, version);
+        
+        // chen add
+        size += SchedulerParameter.serializer.serializedSize(command.para_wrapper, version);
+        
         return size;
     }
 }

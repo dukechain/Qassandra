@@ -113,7 +113,7 @@ public abstract class BDBStorage
     
             myDatabase.put(null, theKey, theData);
             
-            logger.debug("Saving the READ cost for key="+new String(key));
+            logger.debug("SET the cost for key="+new String(key));
             
             cleanup();
         }

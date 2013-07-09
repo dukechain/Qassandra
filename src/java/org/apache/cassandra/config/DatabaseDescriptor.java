@@ -1263,4 +1263,9 @@ public class DatabaseDescriptor
     {
         return conf.berkeleyDB_path;
     }
+    
+    public static int getConcurrent_pool_size()
+    {
+        return conf.concurrent_pool_size;
+    }
 }

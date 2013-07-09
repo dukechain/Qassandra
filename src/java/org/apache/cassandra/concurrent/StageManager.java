@@ -54,7 +54,7 @@ public class StageManager
     {
         // chen modify here to let mutation and read be in the same executor
         Chen_ThreadPoolExecutor tPE_mixtureExecutor = multiThreaded_mutilType_ConfigurableStage(Stage.READ_MUTATION, 
-                1);
+                getConcurrent_pool_size());
         stages.put(Stage.MUTATION, multiThreadedConfigurableStage(Stage.MUTATION, getConcurrentWriters()));
         stages.put(Stage.READ, multiThreadedConfigurableStage(Stage.READ, getConcurrentReaders()));
 //        stages.put(Stage.READ_MUTATION, multiThreadedConfigurableStage(Stage.READ_MUTATION, getConcurrentWriters()));

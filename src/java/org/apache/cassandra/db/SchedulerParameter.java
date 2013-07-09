@@ -1,10 +1,14 @@
 package org.apache.cassandra.db;
 
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.util.StringTokenizer;
 
 
+import org.apache.cassandra.io.IVersionedSerializer;
 import org.apache.cassandra.thrift.Agreement_parameters;
 
 /**
@@ -12,6 +16,8 @@ import org.apache.cassandra.thrift.Agreement_parameters;
  */
 public class SchedulerParameter
 {
+    public static final Serializer serializer = new Serializer();
+    
     //user specification
     public long tardiness_deadline;
     public long staleness_deadline;
@@ -194,5 +200,121 @@ public class SchedulerParameter
         }
         
         return ByteBuffer.wrap(array);
+    }
+    
+    public static class Serializer implements IVersionedSerializer<SchedulerParameter>
+    {
+
+        @Override
+        public void serialize(SchedulerParameter t, DataOutput out, int version) throws IOException
+        {
+            out.writeLong(t.tardiness_deadline);
+            out.writeLong(t.staleness_deadline);
+            
+            out.writeDouble(t.QoS_preference);
+            out.writeDouble(t.query_weight);
+            
+            //system behaviour
+            out.writeBoolean(t.isInstalled);
+            
+            //important timestamp
+            out.writeLong(t.client_issue_time);
+            out.writeLong(t.client_finished_time);
+            out.writeLong(t.client_latency);
+            
+            out.writeLong(t.local_arrival_time);
+            out.writeLong(t.local_start_time);
+            out.writeLong(t.local_finished_time);
+            
+            //execution time estimation
+            out.writeLong(t.estimated_QC_k);
+            out.writeLong(t.estimated_UC_k);
+            
+            //the actual execution time
+            out.writeLong(t.actual_QC_k);
+            out.writeLong(t.actual_UC_k);
+            
+            
+            out.writeLong(t.first_unapplied_time);
+            
+        }
+
+        @Override
+        public SchedulerParameter deserialize(DataInput in, int version) throws IOException
+        {
+            SchedulerParameter sp = new SchedulerParameter();
+            
+            sp.tardiness_deadline = in.readLong();
+            sp.staleness_deadline = in.readLong();
+            
+            sp.QoS_preference = in.readDouble();
+            sp.query_weight = in.readDouble();
+            
+            //system behaviour
+            sp.isInstalled = in.readBoolean();
+            
+            //important timestamp
+            sp.client_issue_time = in.readLong();
+            sp.client_finished_time = in.readLong();
+            sp.client_latency = in.readLong();
+            
+            sp.local_arrival_time = in.readLong();
+            sp.local_start_time = in.readLong();
+            sp.local_finished_time = in.readLong();
+            
+            //execution time estimation
+            sp.estimated_QC_k = in.readLong();
+            sp.estimated_UC_k = in.readLong();
+            
+            //the actual execution time
+            sp.actual_QC_k = in.readLong();
+            sp.actual_UC_k = in.readLong();
+            
+            
+            sp.first_unapplied_time = in.readLong();
+            
+            return sp;
+        }
+
+        @Override
+        public long serializedSize(SchedulerParameter t, int version)
+        {
+            TypeSizes sizes = TypeSizes.NATIVE;
+            
+            int size = 0;
+            
+            size += sizes.sizeof(t.tardiness_deadline);
+            size += sizes.sizeof(t.staleness_deadline);
+            
+            size += sizes.sizeof(t.QoS_preference);
+            size += sizes.sizeof(t.query_weight);
+            
+            //system behaviour
+            size += sizes.sizeof(t.isInstalled);
+            
+            //important timestamp
+            size += sizes.sizeof(t.client_issue_time);
+            size += sizes.sizeof(t.client_finished_time);
+            size += sizes.sizeof(t.client_latency);
+            
+            size += sizes.sizeof(t.local_arrival_time);
+            size += sizes.sizeof(t.local_start_time);
+            size += sizes.sizeof(t.local_finished_time);
+            
+            //execution time estimation
+            size += sizes.sizeof(t.estimated_QC_k);
+            size += sizes.sizeof(t.estimated_UC_k);
+            
+            //the actual execution time
+            size += sizes.sizeof(t.actual_QC_k);
+            size += sizes.sizeof(t.actual_UC_k);
+            
+            
+            size += sizes.sizeof(t.first_unapplied_time);
+            
+            
+            return size;
+        }
+        
     }
 }

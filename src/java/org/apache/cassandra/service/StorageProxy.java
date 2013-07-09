@@ -18,9 +18,12 @@
 package org.apache.cassandra.service;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.Charset;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -66,6 +69,7 @@ import org.apache.cassandra.prediction.WriteExecutionTimePrediction;
 import org.apache.cassandra.service.paxos.*;
 import org.apache.cassandra.tracing.Tracing;
 import org.apache.cassandra.utils.*;
+import org.codehaus.jackson.sym.CharsToNameCanonicalizer;
 
 public class StorageProxy implements StorageProxyMBean
 {
@@ -414,11 +418,11 @@ public class StorageProxy implements StorageProxyMBean
             // wait for writes.  throws TimeoutException if necessary
             for (AbstractWriteResponseHandler responseHandler : responseHandlers)
             {
-                //responseHandler.get();
+                responseHandler.get();
             }
 
         }
-        /*catch (WriteTimeoutException ex)
+        catch (WriteTimeoutException ex)
         {
             writeMetrics.timeouts.mark();
             ClientRequestMetrics.writeTimeouts.inc();
@@ -431,7 +435,7 @@ public class StorageProxy implements StorageProxyMBean
             }
             Tracing.trace("Write timeout");
             throw ex;
-        }*/
+        }
         catch (UnavailableException e)
         {
             writeMetrics.unavailables.mark();
@@ -739,6 +743,8 @@ public class StorageProxy implements StorageProxyMBean
                 if (!shouldHint(destination))
                     continue;
 
+                logger.info("{} is not alive", destination);
+                
                 // Schedule a local hint
                 submitHint(rm, destination, responseHandler, consistency_level);
             }
@@ -746,6 +752,8 @@ public class StorageProxy implements StorageProxyMBean
 
         sendMessages(localDataCenter, dcMessages, responseHandler);
     }
+    
+    
 
     public static Future<Void> submitHint(final RowMutation mutation,
                                           final InetAddress target,
@@ -757,10 +765,30 @@ public class StorageProxy implements StorageProxyMBean
 
         HintRunnable runnable = new HintRunnable(target)
         {
+            public String toString(ByteBuffer buffer) throws UnsupportedEncodingException 
+                    {
+                        ByteBuffer cp = buffer.duplicate();
+                        byte[] bytes = new byte[cp.remaining()];
+                        cp.get(bytes);
+                        return new String(bytes, "UTF-8");
+                    }
+            
             public void runMayThrow()
             {
-                logger.debug("Adding hint for {}", target);
-
+                    try
+                    {
+                        logger.debug("Adding hint for {}, keyspace={}, key={}", 
+                                target,
+                                mutation.getTable(),
+                                toString(mutation.key())
+                                        );
+                    }
+                    catch (UnsupportedEncodingException e)
+                    {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+     
                 writeHintForMutation(mutation, target);
                 // Notify the handler only for CL == ANY
                 if (responseHandler != null && consistencyLevel == ConsistencyLevel.ANY)

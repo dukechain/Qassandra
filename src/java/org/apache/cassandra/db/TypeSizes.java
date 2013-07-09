@@ -20,6 +20,8 @@ package org.apache.cassandra.db;
 import java.nio.ByteBuffer;
 import java.util.UUID;
 
+import org.apache.cassandra.cli.CliParser.incrementValue_return;
+
 public abstract class TypeSizes
 {
     public static final TypeSizes NATIVE = new NativeDBTypeSizes();
@@ -30,12 +32,21 @@ public abstract class TypeSizes
     private static final int INT_SIZE = 4;
     private static final int LONG_SIZE = 8;
     private static final int UUID_SIZE = 16;
+    
+    
+    private static final int DOUBLE_SIZE = 8;
 
     public abstract int sizeof(boolean value);
     public abstract int sizeof(short value);
     public abstract int sizeof(int value);
     public abstract int sizeof(long value);
     public abstract int sizeof(UUID value);
+    
+    //
+    public int sizeof(double value)
+    {
+        return DOUBLE_SIZE;
+    }
 
     /** assumes UTF8 */
     public int sizeof(String value)
