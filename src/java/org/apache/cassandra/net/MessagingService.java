@@ -746,6 +746,8 @@ public final class MessagingService implements MessagingServiceMBean
             
             runnable = new Chen_MessageDeliveryTask(message, id, timestamp);
             stage = StageManager.getStage(Stage.READ_MUTATION);
+            
+            stage.execute(runnable);
         }
         else {
             runnable = new MessageDeliveryTask(message, id, timestamp);
