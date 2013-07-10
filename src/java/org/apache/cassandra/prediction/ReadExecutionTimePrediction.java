@@ -6,6 +6,7 @@ import org.apache.cassandra.concurrent.scheduler.RWTask;
 import org.apache.cassandra.db.ReadCommand;
 import org.apache.cassandra.prediction.BDBStorage.ReadBDBStorage;
 import org.apache.cassandra.prediction.BDBStorageSingleton.ReadBDBStorageSingleton;
+import org.apache.cassandra.utils.ByteBufferUtil;
 
 
 /**
@@ -53,7 +54,7 @@ public class ReadExecutionTimePrediction extends ExecutionTimePrediction
         
         long en = System.currentTimeMillis();
         
-        logger.debug("insert BDB of key="+new String(key)+" is "+(en-st)+" ms");
+        logger.debug("insert BDB of READ key="+new String(key)+" is "+(en-st)+" ms");
     }
 
     @Override
@@ -61,7 +62,7 @@ public class ReadExecutionTimePrediction extends ExecutionTimePrediction
     {
         ReadCommand rc = task.getReadCommand();
         
-        ByteBuffer buffer = rc.key.duplicate();
+        ByteBuffer buffer = ByteBufferUtil.clone(rc.key);
         
         byte[] bytes = new byte[buffer.remaining()];
         buffer.get(bytes);
@@ -73,7 +74,7 @@ public class ReadExecutionTimePrediction extends ExecutionTimePrediction
     
     public void time_save(ReadCommand rc, long cost)
     {
-        ByteBuffer buffer = rc.key.duplicate();
+        ByteBuffer buffer = ByteBufferUtil.clone(rc.key);
         
         byte[] bytes = new byte[buffer.remaining()];
         buffer.get(bytes);

@@ -24,8 +24,10 @@ import java.net.InetAddress;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.cassandra.concurrent.scheduler.IsUserOperation;
 import org.apache.cassandra.io.util.FastByteArrayInputStream;
 import org.apache.cassandra.net.*;
+import org.apache.cassandra.prediction.WriteExecutionTimePrediction;
 import org.apache.cassandra.tracing.Tracing;
 
 public class RowMutationVerbHandler implements IVerbHandler<RowMutation>
@@ -53,7 +55,24 @@ public class RowMutationVerbHandler implements IVerbHandler<RowMutation>
                 replyTo = InetAddress.getByAddress(from);
             }
 
+            //chen add
+            long start = System.currentTimeMillis();///
+            
             rm.apply();
+            
+            long end = System.currentTimeMillis();///
+            
+            /***/
+            if (IsUserOperation.isUserRowMutation(rm))
+            {
+                WriteExecutionTimePrediction prediction = 
+                        new WriteExecutionTimePrediction();
+                
+                prediction.time_save(rm, end-start);
+            }
+            /**/
+            
+            
             WriteResponse response = new WriteResponse();
             Tracing.trace("Enqueuing response to {}", replyTo);
             MessagingService.instance().sendReply(response.createMessage(), id, replyTo);

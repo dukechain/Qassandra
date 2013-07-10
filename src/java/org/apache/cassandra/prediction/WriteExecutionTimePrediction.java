@@ -7,6 +7,7 @@ import org.apache.cassandra.concurrent.scheduler.RWTask;
 import org.apache.cassandra.db.RowMutation;
 import org.apache.cassandra.prediction.BDBStorage.WriteBDBStorage;
 import org.apache.cassandra.prediction.BDBStorageSingleton.WriteBDBStorageSingleton;
+import org.apache.cassandra.utils.ByteBufferUtil;
 
 /**
  *  To predict the execution time of Update
@@ -56,7 +57,7 @@ public class WriteExecutionTimePrediction extends ExecutionTimePrediction
     {
         RowMutation rw = task.getRowMutation();
         
-        ByteBuffer buffer = rw.key();
+        ByteBuffer buffer = ByteBufferUtil.clone(rw.key());;
         
         byte[] bytes = new byte[buffer.remaining()];
         buffer.get(bytes);
@@ -76,7 +77,7 @@ public class WriteExecutionTimePrediction extends ExecutionTimePrediction
 
     public void time_save(RowMutation rm, long cost)
     {
-        ByteBuffer buffer = rm.key();
+        ByteBuffer buffer = ByteBufferUtil.clone(rm.key());
         
         byte[] bytes = new byte[buffer.remaining()];
         buffer.get(bytes);
