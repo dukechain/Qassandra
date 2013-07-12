@@ -30,6 +30,7 @@ import org.apache.cassandra.db.ConsistencyLevel;
 import org.apache.cassandra.db.ReadCommand;
 import org.apache.cassandra.db.ReadResponse;
 import org.apache.cassandra.db.Row;
+import org.apache.cassandra.db.SchedulerParameter;
 import org.apache.cassandra.db.Table;
 import org.apache.cassandra.exceptions.ReadTimeoutException;
 import org.apache.cassandra.exceptions.UnavailableException;
@@ -127,6 +128,12 @@ public abstract class AbstractReadExecutor
     Row get() throws ReadTimeoutException, DigestMismatchException
     {
         return handler.get();
+    }
+    
+    //chen add
+    SchedulerParameter getSchedulerParameter()
+    {
+        return resolver.getSchedulerParameter();
     }
 
     public static AbstractReadExecutor getReadExecutor(ReadCommand command, ConsistencyLevel consistency_level) throws UnavailableException

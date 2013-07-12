@@ -47,6 +47,10 @@ public class RowMutation implements IMutation
     private final ByteBuffer key;
     // map of column family id to mutations for that column family.
     private final Map<UUID, ColumnFamily> modifications;
+    
+    
+    public long local_arrival_time = -1;
+    
 
     public RowMutation(String table, ByteBuffer key)
     {

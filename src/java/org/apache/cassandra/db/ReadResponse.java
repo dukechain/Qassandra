@@ -34,6 +34,10 @@ public class ReadResponse
 
     private final Row row;
     private final ByteBuffer digest;
+    
+    
+    // chen add
+    public SchedulerParameter para_wrapper;
 
     public ReadResponse(ByteBuffer digest)
     {
@@ -75,6 +79,9 @@ class ReadResponseSerializer implements IVersionedSerializer<ReadResponse>
         out.writeBoolean(response.isDigestQuery());
         if (!response.isDigestQuery())
             Row.serializer.serialize(response.row(), out, version);
+        
+        //Chen add
+        SchedulerParameter.serializer.serialize(response.para_wrapper, out, version);
     }
 
     public ReadResponse deserialize(DataInput in, int version) throws IOException
@@ -95,8 +102,13 @@ class ReadResponseSerializer implements IVersionedSerializer<ReadResponse>
             // This is coming from a remote host
             row = Row.serializer.deserialize(in, version, ColumnSerializer.Flag.FROM_REMOTE);
         }
-
-        return isDigest ? new ReadResponse(ByteBuffer.wrap(digest)) : new ReadResponse(row);
+        
+        //Chen modified
+        ReadResponse response = isDigest ? new ReadResponse(ByteBuffer.wrap(digest)) : new ReadResponse(row);
+        
+        response.para_wrapper = SchedulerParameter.serializer.deserialize(in, version);
+        
+        return response;
     }
 
     public long serializedSize(ReadResponse response, int version)
@@ -107,6 +119,10 @@ class ReadResponseSerializer implements IVersionedSerializer<ReadResponse>
         size += typeSizes.sizeof(response.isDigestQuery());
         if (!response.isDigestQuery())
             size += Row.serializer.serializedSize(response.row(), version);
+        
+        //Chen add
+        size += SchedulerParameter.serializer.serializedSize(response.para_wrapper, version);
+        
         return size;
     }
 }

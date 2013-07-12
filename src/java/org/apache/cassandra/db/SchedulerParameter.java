@@ -19,8 +19,11 @@ public class SchedulerParameter
     public static final Serializer serializer = new Serializer();
     
     //user specification
-    public long tardiness_deadline;
-    public long staleness_deadline;
+    public long tardiness_tolerance;
+    public long staleness_tolerance;
+    
+    public long tardiness_deadline = -1;
+    public long staleness_deadline = Long.MAX_VALUE;
     
     public double QoS_preference;
     public double query_weight;
@@ -46,28 +49,48 @@ public class SchedulerParameter
     public long actual_UC_k = -1;
     
     
-    public long first_unapplied_time = -1;
+    public long first_unapplied_time = Long.MAX_VALUE;
     
     private static final String Token = ",";
     
-    public SchedulerParameter() {
+    public void setTardinessDeadline() {
+        if (tardiness_deadline == -1)
+        {
+            tardiness_deadline = local_arrival_time + tardiness_tolerance;
+        }
+    }
+    
+    public void setFirst_unapplied_time(long first_unapplied_time) {
+       this.first_unapplied_time = first_unapplied_time;
+    }
+    
+    public void setStalenessDeadline() {
+        if (first_unapplied_time != Long.MAX_VALUE)
+        {
+            staleness_deadline = first_unapplied_time + staleness_tolerance;
+        }
     }
     
     
-    public SchedulerParameter(long tardiness_deadline, long staleness_deadline) {
-        this.tardiness_deadline = tardiness_deadline;
-        this.staleness_deadline = staleness_deadline;
+    public SchedulerParameter() {
+        
+    }
+    
+    
+    public SchedulerParameter(long tardiness_tolerance, long staleness_tolerance) {
+        this.tardiness_tolerance = tardiness_tolerance;
+        this.staleness_tolerance = staleness_tolerance;
         
         QoS_preference = 1;
         query_weight = 1;
     }
     
-    public SchedulerParameter(long tardiness_deadline,
-            long staleness_deadline,
+    public SchedulerParameter(long tardiness_tolerance,
+            long staleness_tolerance,
             double QoS_preference,
             double query_weight) {
-        this.tardiness_deadline = tardiness_deadline;
-        this.staleness_deadline = staleness_deadline;
+        this.tardiness_tolerance = tardiness_tolerance;
+        this.staleness_tolerance = staleness_tolerance;
         
         this.QoS_preference = QoS_preference;
         this.query_weight = query_weight;
@@ -82,6 +105,9 @@ public class SchedulerParameter
     
     public SchedulerParameter(String str) {
         StringTokenizer tokenizer = new StringTokenizer(str, Token);
+        
+        tardiness_tolerance = Long.parseLong(tokenizer.nextToken());
+        staleness_tolerance = Long.parseLong(tokenizer.nextToken());
         
         tardiness_deadline = Long.parseLong(tokenizer.nextToken());
         staleness_deadline = Long.parseLong(tokenizer.nextToken());
@@ -116,6 +142,11 @@ public class SchedulerParameter
     public String toString()
     {
         StringBuffer sb = new StringBuffer();
+        
+        sb.append(tardiness_tolerance);
+        sb.append(Token);
+        sb.append(staleness_tolerance);
+        sb.append(Token);
         
         sb.append(tardiness_deadline);
         sb.append(Token);
@@ -208,6 +239,9 @@ public class SchedulerParameter
         @Override
         public void serialize(SchedulerParameter t, DataOutput out, int version) throws IOException
         {
+            out.writeLong(t.tardiness_tolerance);
+            out.writeLong(t.staleness_tolerance);
+            
             out.writeLong(t.tardiness_deadline);
             out.writeLong(t.staleness_deadline);
             
@@ -243,6 +277,9 @@ public class SchedulerParameter
         public SchedulerParameter deserialize(DataInput in, int version) throws IOException
         {
             SchedulerParameter sp = new SchedulerParameter();
+            
+            sp.tardiness_tolerance = in.readLong();
+            sp.staleness_tolerance = in.readLong();
             
             sp.tardiness_deadline = in.readLong();
             sp.staleness_deadline = in.readLong();
@@ -282,6 +319,9 @@ public class SchedulerParameter
             TypeSizes sizes = TypeSizes.NATIVE;
             
             int size = 0;
+            
+            size += sizes.sizeof(t.tardiness_tolerance);
+            size += sizes.sizeof(t.staleness_tolerance);
             
             size += sizes.sizeof(t.tardiness_deadline);
             size += sizes.sizeof(t.staleness_deadline);

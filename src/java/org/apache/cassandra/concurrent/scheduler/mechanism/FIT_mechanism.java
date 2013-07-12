@@ -45,15 +45,22 @@ public class FIT_mechanism extends Chen_JMXConfigurableThreadPoolExecutor
             
             if (rc.para_wrapper.isInstalled)
             {
-                rc.para_wrapper.staleness_deadline = Long.MAX_VALUE;
+                
                 
                 //remove 
                 List<RWTask> writetask = removeWritesonGivenKey(rc.key);
                 
                 if (writetask != null)
                 {
+                    long st = System.currentTimeMillis();
                     writetask.get(writetask.size()-1).run();
+                    long en = System.currentTimeMillis();
+                    
+                    rc.para_wrapper.actual_UC_k = en-st;
                 }
+                
+                
+                rc.para_wrapper.staleness_deadline = Long.MAX_VALUE;
             }
         }
     }
@@ -69,10 +76,33 @@ public class FIT_mechanism extends Chen_JMXConfigurableThreadPoolExecutor
             RWTask readtask = (RWTask) r;
             ReadCommand read = readtask.getReadCommand();
             
-            read.para_wrapper.estimated_QC_k = readPredict.time_prediction(readtask);
             
-            read.para_wrapper.estimated_UC_k = 
-                    writePredict.time_prediction(getWritesonGivenKey((RWTask)readtask));
+            read.para_wrapper.setTardinessDeadline();
+            
+            if (read.para_wrapper.estimated_QC_k == -1)
+            {
+                read.para_wrapper.estimated_QC_k = readPredict.time_prediction(readtask);
+            }
+            
+            
+            List<RWTask> pendingUpdate = getWritesonGivenKey((RWTask)readtask);
+            
+            
+            if (pendingUpdate.isEmpty())
+            {
+                read.para_wrapper.estimated_UC_k = 0;
+            }
+            else {
+                read.para_wrapper.estimated_UC_k = 
+                        writePredict.time_prediction(pendingUpdate);
+                
+                long first_unapplied_time = 
+                        pendingUpdate.get(0).getRowMutation().local_arrival_time;
+                
+                read.para_wrapper.setFirst_unapplied_time(first_unapplied_time);
+                read.para_wrapper.setStalenessDeadline();
+            }
+                        
             
             double Ps = penalty_skipping_update(read, tau);
             double Pi = penalty_installing_update(read, tau);

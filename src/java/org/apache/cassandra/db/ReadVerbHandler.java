@@ -85,7 +85,11 @@ public class ReadVerbHandler implements IVerbHandler<ReadCommand>
         }
         else
         {
-            return new ReadResponse(row);
+            ReadResponse res = new ReadResponse(row);
+            
+            res.para_wrapper = command.para_wrapper;
+            
+            return res;
         }
     }
 }

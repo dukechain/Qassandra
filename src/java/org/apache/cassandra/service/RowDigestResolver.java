@@ -22,6 +22,7 @@ import java.nio.ByteBuffer;
 import org.apache.cassandra.db.ColumnFamily;
 import org.apache.cassandra.db.ReadResponse;
 import org.apache.cassandra.db.Row;
+import org.apache.cassandra.db.SchedulerParameter;
 import org.apache.cassandra.net.MessageIn;
 
 public class RowDigestResolver extends AbstractRowResolver
@@ -42,6 +43,23 @@ public class RowDigestResolver extends AbstractRowResolver
             if (!result.isDigestQuery())
                 return result.row();
         }
+        return null;
+    }
+    
+    //chen add
+    /**
+     * 
+     * get scheduler parameters 
+     */
+    public SchedulerParameter getSchedulerParameter()
+    {
+        for (MessageIn<ReadResponse> message : replies)
+        {
+            ReadResponse result = message.payload;
+            
+            return result.para_wrapper;
+        }
+        
         return null;
     }
 

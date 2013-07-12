@@ -412,13 +412,13 @@ public class StorageProxy implements StorageProxyMBean
             }
 
             // wait for writes.  throws TimeoutException if necessary
-            for (AbstractWriteResponseHandler responseHandler : responseHandlers)
+            /*for (AbstractWriteResponseHandler responseHandler : responseHandlers)
             {
                 responseHandler.get();
-            }
+            }*/
 
         }
-        catch (WriteTimeoutException ex)
+       /* catch (WriteTimeoutException ex)
         {
             writeMetrics.timeouts.mark();
             ClientRequestMetrics.writeTimeouts.inc();
@@ -431,7 +431,7 @@ public class StorageProxy implements StorageProxyMBean
             }
             Tracing.trace("Write timeout");
             throw ex;
-        }
+        }*/
         catch (UnavailableException e)
         {
             writeMetrics.unavailables.mark();
@@ -1169,7 +1169,7 @@ public class StorageProxy implements StorageProxyMBean
                         if (IsUserOperation.isUserReadCommand(exec.command))
                         {
                             
-                            row.addSchedulerWrapper(exec.command);
+                            row.addSchedulerWrapper(exec.getSchedulerParameter());
                         }
                         /***/
                         

@@ -22,17 +22,12 @@ import java.util.concurrent.locks.*;
 import java.util.*;
 
 
-import org.antlr.grammar.v3.ANTLRv3Parser.finallyClause_return;
 import org.apache.cassandra.concurrent.scheduler.RWTask;
 import org.apache.cassandra.concurrent.scheduler.policy.Policy;
 import org.apache.cassandra.db.ReadCommand;
 import org.apache.cassandra.db.RowMutation;
 import org.apache.cassandra.net.Chen_MessageDeliveryTask;
 import org.apache.cassandra.net.MessagingService;
-import org.apache.cassandra.thrift.Cassandra.Processor.system_add_column_family;
-import org.apache.pig.parser.QueryParser.null_check_cond_return;
-import org.eclipse.jdt.internal.core.builder.WorkQueue;
-
 
 /**
  * An {@link ExecutorService} that executes each submitted task using
@@ -732,6 +727,9 @@ public class Chen_ThreadPoolExecutor extends ThreadPoolExecutor {
                 executeRead(command);
                 
             } else if (taskType == MessagingService.Verb.MUTATION) {
+                
+                task.getRowMutation().local_arrival_time = System.currentTimeMillis();
+                
                 task.setPriority(Double.MAX_VALUE);
                 executeWrite(command);
             }
