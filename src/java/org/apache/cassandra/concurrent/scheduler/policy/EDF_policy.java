@@ -18,9 +18,12 @@ public class EDF_policy implements Policy
     {
         ReadCommand rc = task.getReadCommand();
         
+        rc.para_wrapper.setTardinessDeadline();
+        
         long tardiness_deadline = rc.para_wrapper.tardiness_deadline;
         
         task.setPriority(1d/tardiness_deadline);
+
     }
 
 }

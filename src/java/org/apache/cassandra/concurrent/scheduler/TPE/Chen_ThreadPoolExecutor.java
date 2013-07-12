@@ -719,6 +719,9 @@ public class Chen_ThreadPoolExecutor extends ThreadPoolExecutor {
                 
                 long tau = System.currentTimeMillis();
                 
+                task.getReadCommand().para_wrapper.local_arrival_time =
+                        System.currentTimeMillis();
+                
                 resetPriority(tau);
                 priority_calculate.setReadPriority(task, 
                         getWritesonGivenKey(task),

@@ -739,10 +739,10 @@ public final class MessagingService implements MessagingServiceMBean
                 message.getMessageType().equals(Stage.MUTATION))
                 &&IsUserOperation.isUserMessage(message))
         {
-            if(message.payload instanceof ReadCommand)
+            /*if(message.payload instanceof ReadCommand)
             {
                 ((ReadCommand) message.payload).para_wrapper.local_arrival_time = System.currentTimeMillis();
-            }
+            }*/
             
             runnable = new Chen_MessageDeliveryTask(message, id, timestamp);
             stage = StageManager.getStage(Stage.READ_MUTATION);
