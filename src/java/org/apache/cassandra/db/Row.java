@@ -52,6 +52,21 @@ public class Row
     {
         this(StorageService.getPartitioner().decorateKey(key), updates);
     }
+    
+    
+    public Row(ReadCommand rc)
+    {
+        ByteBuffer key = rc.key;
+        
+        CFMetaData cfMetaData = new CFMetaData(rc.getKeyspace(), 
+                rc.getColumnFamilyName(), 
+                ColumnFamilyType.Standard, 
+                UTF8Type.instance);
+        
+        cf = AtomicSortedColumns.factory.create(cfMetaData);
+        
+        this.key = StorageService.getPartitioner().decorateKey(key);
+    }
 
     @Override
     public String toString()

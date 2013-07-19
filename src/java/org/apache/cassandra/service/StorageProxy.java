@@ -1161,7 +1161,8 @@ public class StorageProxy implements StorageProxyMBean
                 try
                 {
                     Row row = exec.get();
-                    if (row != null)
+                    //if (row != null)
+                    if (row != null && row.cf != null)
                     {
                         exec.command.maybeTrim(row);
                         
@@ -1175,6 +1176,18 @@ public class StorageProxy implements StorageProxyMBean
                         
                         rows.add(row);
                     }
+                    /**/
+                    else {
+                        if (IsUserOperation.isUserReadCommand(exec.command))
+                        {
+                            row = new Row(exec.command);
+                            row.addSchedulerWrapper(exec.getSchedulerParameter());
+                            
+                            rows.add(row);
+                        }  
+                    }
+                    /**/
+                    
                     if (logger.isDebugEnabled())
                         logger.debug("Read: " + (System.currentTimeMillis() - exec.handler.startTime) + " ms.");
                 }

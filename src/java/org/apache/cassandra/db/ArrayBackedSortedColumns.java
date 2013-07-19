@@ -28,7 +28,9 @@ import com.google.common.collect.Lists;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.db.filter.ColumnSlice;
 import org.apache.cassandra.db.marshal.AbstractType;
+import org.apache.cassandra.db.marshal.CompositeType;
 import org.apache.cassandra.utils.Allocator;
+import org.apache.cassandra.utils.ByteBufferUtil;
 
 /**
  * A ColumnFamily backed by an ArrayList.
@@ -112,7 +114,18 @@ public class ArrayBackedSortedColumns extends AbstractThreadUnsafeSortedColumns
         int c = internalComparator().compare(columns.get(getColumnCount() - 1).name(), column.name());
         // note that we want an assertion here (see addColumn javadoc), but we also want that if
         // assertion are disabled, addColumn works correctly with unsorted input
-        assert c <= 0 : "Added column does not sort as the " + (reversed ? "first" : "last") + " column";
+        
+        ByteBuffer name = ByteBufferUtil.bytes("scheduler");
+        if (!column.name().equals(name))
+        {
+            name = CompositeType.build(name, name);
+            if (!column.name().equals(name))
+            {
+                assert c <= 0 : "Added column does not sort as the " + (reversed ? "first" : "last") + " column";
+            }
+        }
+        
+       
 
         if (c < 0)
         {
@@ -133,6 +146,9 @@ public class ArrayBackedSortedColumns extends AbstractThreadUnsafeSortedColumns
                 columns.add(-pos-1, column);
         }
     }
+    
+    
+ 
 
     /**
      * Resolve against element at position i.
