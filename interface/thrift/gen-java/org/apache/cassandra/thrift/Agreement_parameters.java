@@ -36,8 +36,8 @@ import org.slf4j.LoggerFactory;
 public class Agreement_parameters implements org.apache.thrift.TBase<Agreement_parameters, Agreement_parameters._Fields>, java.io.Serializable, Cloneable {
   private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("Agreement_parameters");
 
-  private static final org.apache.thrift.protocol.TField TARDINESS_DEADLINE_FIELD_DESC = new org.apache.thrift.protocol.TField("tardiness_deadline", org.apache.thrift.protocol.TType.I64, (short)1);
-  private static final org.apache.thrift.protocol.TField STALENESS_DEADLINE_FIELD_DESC = new org.apache.thrift.protocol.TField("staleness_deadline", org.apache.thrift.protocol.TType.I64, (short)2);
+  private static final org.apache.thrift.protocol.TField LATENCY_BOUND_FIELD_DESC = new org.apache.thrift.protocol.TField("latency_bound", org.apache.thrift.protocol.TType.I64, (short)1);
+  private static final org.apache.thrift.protocol.TField STALENESS_BOUND_FIELD_DESC = new org.apache.thrift.protocol.TField("staleness_bound", org.apache.thrift.protocol.TType.I64, (short)2);
   private static final org.apache.thrift.protocol.TField QO_S_PREFERENCE_FIELD_DESC = new org.apache.thrift.protocol.TField("QoS_preference", org.apache.thrift.protocol.TType.DOUBLE, (short)3);
   private static final org.apache.thrift.protocol.TField QUERY_WEIGHT_FIELD_DESC = new org.apache.thrift.protocol.TField("query_weight", org.apache.thrift.protocol.TType.DOUBLE, (short)4);
 
@@ -47,15 +47,15 @@ public class Agreement_parameters implements org.apache.thrift.TBase<Agreement_p
     schemes.put(TupleScheme.class, new Agreement_parametersTupleSchemeFactory());
   }
 
-  public long tardiness_deadline; // required
-  public long staleness_deadline; // required
+  public long latency_bound; // required
+  public long staleness_bound; // required
   public double QoS_preference; // optional
   public double query_weight; // optional
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
-    TARDINESS_DEADLINE((short)1, "tardiness_deadline"),
-    STALENESS_DEADLINE((short)2, "staleness_deadline"),
+    LATENCY_BOUND((short)1, "latency_bound"),
+    STALENESS_BOUND((short)2, "staleness_bound"),
     QO_S_PREFERENCE((short)3, "QoS_preference"),
     QUERY_WEIGHT((short)4, "query_weight");
 
@@ -72,10 +72,10 @@ public class Agreement_parameters implements org.apache.thrift.TBase<Agreement_p
      */
     public static _Fields findByThriftId(int fieldId) {
       switch(fieldId) {
-        case 1: // TARDINESS_DEADLINE
-          return TARDINESS_DEADLINE;
-        case 2: // STALENESS_DEADLINE
-          return STALENESS_DEADLINE;
+        case 1: // LATENCY_BOUND
+          return LATENCY_BOUND;
+        case 2: // STALENESS_BOUND
+          return STALENESS_BOUND;
         case 3: // QO_S_PREFERENCE
           return QO_S_PREFERENCE;
         case 4: // QUERY_WEIGHT
@@ -120,8 +120,8 @@ public class Agreement_parameters implements org.apache.thrift.TBase<Agreement_p
   }
 
   // isset id assignments
-  private static final int __TARDINESS_DEADLINE_ISSET_ID = 0;
-  private static final int __STALENESS_DEADLINE_ISSET_ID = 1;
+  private static final int __LATENCY_BOUND_ISSET_ID = 0;
+  private static final int __STALENESS_BOUND_ISSET_ID = 1;
   private static final int __QOS_PREFERENCE_ISSET_ID = 2;
   private static final int __QUERY_WEIGHT_ISSET_ID = 3;
   private byte __isset_bitfield = 0;
@@ -129,9 +129,9 @@ public class Agreement_parameters implements org.apache.thrift.TBase<Agreement_p
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-    tmpMap.put(_Fields.TARDINESS_DEADLINE, new org.apache.thrift.meta_data.FieldMetaData("tardiness_deadline", org.apache.thrift.TFieldRequirementType.REQUIRED, 
+    tmpMap.put(_Fields.LATENCY_BOUND, new org.apache.thrift.meta_data.FieldMetaData("latency_bound", org.apache.thrift.TFieldRequirementType.REQUIRED, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
-    tmpMap.put(_Fields.STALENESS_DEADLINE, new org.apache.thrift.meta_data.FieldMetaData("staleness_deadline", org.apache.thrift.TFieldRequirementType.REQUIRED, 
+    tmpMap.put(_Fields.STALENESS_BOUND, new org.apache.thrift.meta_data.FieldMetaData("staleness_bound", org.apache.thrift.TFieldRequirementType.REQUIRED, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
     tmpMap.put(_Fields.QO_S_PREFERENCE, new org.apache.thrift.meta_data.FieldMetaData("QoS_preference", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.DOUBLE)));
@@ -142,9 +142,9 @@ public class Agreement_parameters implements org.apache.thrift.TBase<Agreement_p
   }
 
   public Agreement_parameters() {
-    this.tardiness_deadline = -1L;
+    this.latency_bound = 0L;
 
-    this.staleness_deadline = -1L;
+    this.staleness_bound = 0L;
 
     this.QoS_preference = (double)1;
 
@@ -153,14 +153,14 @@ public class Agreement_parameters implements org.apache.thrift.TBase<Agreement_p
   }
 
   public Agreement_parameters(
-    long tardiness_deadline,
-    long staleness_deadline)
+    long latency_bound,
+    long staleness_bound)
   {
     this();
-    this.tardiness_deadline = tardiness_deadline;
-    setTardiness_deadlineIsSet(true);
-    this.staleness_deadline = staleness_deadline;
-    setStaleness_deadlineIsSet(true);
+    this.latency_bound = latency_bound;
+    setLatency_boundIsSet(true);
+    this.staleness_bound = staleness_bound;
+    setStaleness_boundIsSet(true);
   }
 
   /**
@@ -168,8 +168,8 @@ public class Agreement_parameters implements org.apache.thrift.TBase<Agreement_p
    */
   public Agreement_parameters(Agreement_parameters other) {
     __isset_bitfield = other.__isset_bitfield;
-    this.tardiness_deadline = other.tardiness_deadline;
-    this.staleness_deadline = other.staleness_deadline;
+    this.latency_bound = other.latency_bound;
+    this.staleness_bound = other.staleness_bound;
     this.QoS_preference = other.QoS_preference;
     this.query_weight = other.query_weight;
   }
@@ -180,9 +180,9 @@ public class Agreement_parameters implements org.apache.thrift.TBase<Agreement_p
 
   @Override
   public void clear() {
-    this.tardiness_deadline = -1L;
+    this.latency_bound = 0L;
 
-    this.staleness_deadline = -1L;
+    this.staleness_bound = 0L;
 
     this.QoS_preference = (double)1;
 
@@ -190,50 +190,50 @@ public class Agreement_parameters implements org.apache.thrift.TBase<Agreement_p
 
   }
 
-  public long getTardiness_deadline() {
-    return this.tardiness_deadline;
+  public long getLatency_bound() {
+    return this.latency_bound;
   }
 
-  public Agreement_parameters setTardiness_deadline(long tardiness_deadline) {
-    this.tardiness_deadline = tardiness_deadline;
-    setTardiness_deadlineIsSet(true);
+  public Agreement_parameters setLatency_bound(long latency_bound) {
+    this.latency_bound = latency_bound;
+    setLatency_boundIsSet(true);
     return this;
   }
 
-  public void unsetTardiness_deadline() {
-    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __TARDINESS_DEADLINE_ISSET_ID);
+  public void unsetLatency_bound() {
+    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __LATENCY_BOUND_ISSET_ID);
   }
 
-  /** Returns true if field tardiness_deadline is set (has been assigned a value) and false otherwise */
-  public boolean isSetTardiness_deadline() {
-    return EncodingUtils.testBit(__isset_bitfield, __TARDINESS_DEADLINE_ISSET_ID);
+  /** Returns true if field latency_bound is set (has been assigned a value) and false otherwise */
+  public boolean isSetLatency_bound() {
+    return EncodingUtils.testBit(__isset_bitfield, __LATENCY_BOUND_ISSET_ID);
   }
 
-  public void setTardiness_deadlineIsSet(boolean value) {
-    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __TARDINESS_DEADLINE_ISSET_ID, value);
+  public void setLatency_boundIsSet(boolean value) {
+    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __LATENCY_BOUND_ISSET_ID, value);
   }
 
-  public long getStaleness_deadline() {
-    return this.staleness_deadline;
+  public long getStaleness_bound() {
+    return this.staleness_bound;
   }
 
-  public Agreement_parameters setStaleness_deadline(long staleness_deadline) {
-    this.staleness_deadline = staleness_deadline;
-    setStaleness_deadlineIsSet(true);
+  public Agreement_parameters setStaleness_bound(long staleness_bound) {
+    this.staleness_bound = staleness_bound;
+    setStaleness_boundIsSet(true);
     return this;
   }
 
-  public void unsetStaleness_deadline() {
-    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __STALENESS_DEADLINE_ISSET_ID);
+  public void unsetStaleness_bound() {
+    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __STALENESS_BOUND_ISSET_ID);
   }
 
-  /** Returns true if field staleness_deadline is set (has been assigned a value) and false otherwise */
-  public boolean isSetStaleness_deadline() {
-    return EncodingUtils.testBit(__isset_bitfield, __STALENESS_DEADLINE_ISSET_ID);
+  /** Returns true if field staleness_bound is set (has been assigned a value) and false otherwise */
+  public boolean isSetStaleness_bound() {
+    return EncodingUtils.testBit(__isset_bitfield, __STALENESS_BOUND_ISSET_ID);
   }
 
-  public void setStaleness_deadlineIsSet(boolean value) {
-    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __STALENESS_DEADLINE_ISSET_ID, value);
+  public void setStaleness_boundIsSet(boolean value) {
+    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __STALENESS_BOUND_ISSET_ID, value);
   }
 
   public double getQoS_preference() {
@@ -284,19 +284,19 @@ public class Agreement_parameters implements org.apache.thrift.TBase<Agreement_p
 
   public void setFieldValue(_Fields field, Object value) {
     switch (field) {
-    case TARDINESS_DEADLINE:
+    case LATENCY_BOUND:
       if (value == null) {
-        unsetTardiness_deadline();
+        unsetLatency_bound();
       } else {
-        setTardiness_deadline((Long)value);
+        setLatency_bound((Long)value);
       }
       break;
 
-    case STALENESS_DEADLINE:
+    case STALENESS_BOUND:
       if (value == null) {
-        unsetStaleness_deadline();
+        unsetStaleness_bound();
       } else {
-        setStaleness_deadline((Long)value);
+        setStaleness_bound((Long)value);
       }
       break;
 
@@ -321,11 +321,11 @@ public class Agreement_parameters implements org.apache.thrift.TBase<Agreement_p
 
   public Object getFieldValue(_Fields field) {
     switch (field) {
-    case TARDINESS_DEADLINE:
-      return Long.valueOf(getTardiness_deadline());
+    case LATENCY_BOUND:
+      return Long.valueOf(getLatency_bound());
 
-    case STALENESS_DEADLINE:
-      return Long.valueOf(getStaleness_deadline());
+    case STALENESS_BOUND:
+      return Long.valueOf(getStaleness_bound());
 
     case QO_S_PREFERENCE:
       return Double.valueOf(getQoS_preference());
@@ -344,10 +344,10 @@ public class Agreement_parameters implements org.apache.thrift.TBase<Agreement_p
     }
 
     switch (field) {
-    case TARDINESS_DEADLINE:
-      return isSetTardiness_deadline();
-    case STALENESS_DEADLINE:
-      return isSetStaleness_deadline();
+    case LATENCY_BOUND:
+      return isSetLatency_bound();
+    case STALENESS_BOUND:
+      return isSetStaleness_bound();
     case QO_S_PREFERENCE:
       return isSetQoS_preference();
     case QUERY_WEIGHT:
@@ -369,21 +369,21 @@ public class Agreement_parameters implements org.apache.thrift.TBase<Agreement_p
     if (that == null)
       return false;
 
-    boolean this_present_tardiness_deadline = true;
-    boolean that_present_tardiness_deadline = true;
-    if (this_present_tardiness_deadline || that_present_tardiness_deadline) {
-      if (!(this_present_tardiness_deadline && that_present_tardiness_deadline))
+    boolean this_present_latency_bound = true;
+    boolean that_present_latency_bound = true;
+    if (this_present_latency_bound || that_present_latency_bound) {
+      if (!(this_present_latency_bound && that_present_latency_bound))
         return false;
-      if (this.tardiness_deadline != that.tardiness_deadline)
+      if (this.latency_bound != that.latency_bound)
         return false;
     }
 
-    boolean this_present_staleness_deadline = true;
-    boolean that_present_staleness_deadline = true;
-    if (this_present_staleness_deadline || that_present_staleness_deadline) {
-      if (!(this_present_staleness_deadline && that_present_staleness_deadline))
+    boolean this_present_staleness_bound = true;
+    boolean that_present_staleness_bound = true;
+    if (this_present_staleness_bound || that_present_staleness_bound) {
+      if (!(this_present_staleness_bound && that_present_staleness_bound))
         return false;
-      if (this.staleness_deadline != that.staleness_deadline)
+      if (this.staleness_bound != that.staleness_bound)
         return false;
     }
 
@@ -421,22 +421,22 @@ public class Agreement_parameters implements org.apache.thrift.TBase<Agreement_p
     int lastComparison = 0;
     Agreement_parameters typedOther = (Agreement_parameters)other;
 
-    lastComparison = Boolean.valueOf(isSetTardiness_deadline()).compareTo(typedOther.isSetTardiness_deadline());
+    lastComparison = Boolean.valueOf(isSetLatency_bound()).compareTo(typedOther.isSetLatency_bound());
     if (lastComparison != 0) {
       return lastComparison;
     }
-    if (isSetTardiness_deadline()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.tardiness_deadline, typedOther.tardiness_deadline);
+    if (isSetLatency_bound()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.latency_bound, typedOther.latency_bound);
       if (lastComparison != 0) {
         return lastComparison;
       }
     }
-    lastComparison = Boolean.valueOf(isSetStaleness_deadline()).compareTo(typedOther.isSetStaleness_deadline());
+    lastComparison = Boolean.valueOf(isSetStaleness_bound()).compareTo(typedOther.isSetStaleness_bound());
     if (lastComparison != 0) {
       return lastComparison;
     }
-    if (isSetStaleness_deadline()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.staleness_deadline, typedOther.staleness_deadline);
+    if (isSetStaleness_bound()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.staleness_bound, typedOther.staleness_bound);
       if (lastComparison != 0) {
         return lastComparison;
       }
@@ -481,12 +481,12 @@ public class Agreement_parameters implements org.apache.thrift.TBase<Agreement_p
     StringBuilder sb = new StringBuilder("Agreement_parameters(");
     boolean first = true;
 
-    sb.append("tardiness_deadline:");
-    sb.append(this.tardiness_deadline);
+    sb.append("latency_bound:");
+    sb.append(this.latency_bound);
     first = false;
     if (!first) sb.append(", ");
-    sb.append("staleness_deadline:");
-    sb.append(this.staleness_deadline);
+    sb.append("staleness_bound:");
+    sb.append(this.staleness_bound);
     first = false;
     if (isSetQoS_preference()) {
       if (!first) sb.append(", ");
@@ -506,8 +506,8 @@ public class Agreement_parameters implements org.apache.thrift.TBase<Agreement_p
 
   public void validate() throws org.apache.thrift.TException {
     // check for required fields
-    // alas, we cannot check 'tardiness_deadline' because it's a primitive and you chose the non-beans generator.
-    // alas, we cannot check 'staleness_deadline' because it's a primitive and you chose the non-beans generator.
+    // alas, we cannot check 'latency_bound' because it's a primitive and you chose the non-beans generator.
+    // alas, we cannot check 'staleness_bound' because it's a primitive and you chose the non-beans generator.
     // check for sub-struct validity
   }
 
@@ -547,18 +547,18 @@ public class Agreement_parameters implements org.apache.thrift.TBase<Agreement_p
           break;
         }
         switch (schemeField.id) {
-          case 1: // TARDINESS_DEADLINE
+          case 1: // LATENCY_BOUND
             if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
-              struct.tardiness_deadline = iprot.readI64();
-              struct.setTardiness_deadlineIsSet(true);
+              struct.latency_bound = iprot.readI64();
+              struct.setLatency_boundIsSet(true);
             } else { 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 2: // STALENESS_DEADLINE
+          case 2: // STALENESS_BOUND
             if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
-              struct.staleness_deadline = iprot.readI64();
-              struct.setStaleness_deadlineIsSet(true);
+              struct.staleness_bound = iprot.readI64();
+              struct.setStaleness_boundIsSet(true);
             } else { 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
@@ -587,11 +587,11 @@ public class Agreement_parameters implements org.apache.thrift.TBase<Agreement_p
       iprot.readStructEnd();
 
       // check for required fields of primitive type, which can't be checked in the validate method
-      if (!struct.isSetTardiness_deadline()) {
-        throw new org.apache.thrift.protocol.TProtocolException("Required field 'tardiness_deadline' was not found in serialized data! Struct: " + toString());
+      if (!struct.isSetLatency_bound()) {
+        throw new org.apache.thrift.protocol.TProtocolException("Required field 'latency_bound' was not found in serialized data! Struct: " + toString());
       }
-      if (!struct.isSetStaleness_deadline()) {
-        throw new org.apache.thrift.protocol.TProtocolException("Required field 'staleness_deadline' was not found in serialized data! Struct: " + toString());
+      if (!struct.isSetStaleness_bound()) {
+        throw new org.apache.thrift.protocol.TProtocolException("Required field 'staleness_bound' was not found in serialized data! Struct: " + toString());
       }
       struct.validate();
     }
@@ -600,11 +600,11 @@ public class Agreement_parameters implements org.apache.thrift.TBase<Agreement_p
       struct.validate();
 
       oprot.writeStructBegin(STRUCT_DESC);
-      oprot.writeFieldBegin(TARDINESS_DEADLINE_FIELD_DESC);
-      oprot.writeI64(struct.tardiness_deadline);
+      oprot.writeFieldBegin(LATENCY_BOUND_FIELD_DESC);
+      oprot.writeI64(struct.latency_bound);
       oprot.writeFieldEnd();
-      oprot.writeFieldBegin(STALENESS_DEADLINE_FIELD_DESC);
-      oprot.writeI64(struct.staleness_deadline);
+      oprot.writeFieldBegin(STALENESS_BOUND_FIELD_DESC);
+      oprot.writeI64(struct.staleness_bound);
       oprot.writeFieldEnd();
       if (struct.isSetQoS_preference()) {
         oprot.writeFieldBegin(QO_S_PREFERENCE_FIELD_DESC);
@@ -633,8 +633,8 @@ public class Agreement_parameters implements org.apache.thrift.TBase<Agreement_p
     @Override
     public void write(org.apache.thrift.protocol.TProtocol prot, Agreement_parameters struct) throws org.apache.thrift.TException {
       TTupleProtocol oprot = (TTupleProtocol) prot;
-      oprot.writeI64(struct.tardiness_deadline);
-      oprot.writeI64(struct.staleness_deadline);
+      oprot.writeI64(struct.latency_bound);
+      oprot.writeI64(struct.staleness_bound);
       BitSet optionals = new BitSet();
       if (struct.isSetQoS_preference()) {
         optionals.set(0);
@@ -654,10 +654,10 @@ public class Agreement_parameters implements org.apache.thrift.TBase<Agreement_p
     @Override
     public void read(org.apache.thrift.protocol.TProtocol prot, Agreement_parameters struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
-      struct.tardiness_deadline = iprot.readI64();
-      struct.setTardiness_deadlineIsSet(true);
-      struct.staleness_deadline = iprot.readI64();
-      struct.setStaleness_deadlineIsSet(true);
+      struct.latency_bound = iprot.readI64();
+      struct.setLatency_boundIsSet(true);
+      struct.staleness_bound = iprot.readI64();
+      struct.setStaleness_boundIsSet(true);
       BitSet incoming = iprot.readBitSet(2);
       if (incoming.get(0)) {
         struct.QoS_preference = iprot.readDouble();
