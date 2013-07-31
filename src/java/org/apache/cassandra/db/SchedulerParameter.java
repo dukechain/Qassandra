@@ -97,8 +97,8 @@ public class SchedulerParameter
     }
     
     public SchedulerParameter(Agreement_parameters agreement_para) {
-        this(agreement_para.tardiness_deadline,
-                agreement_para.staleness_deadline,
+        this(agreement_para.latency_bound,
+                agreement_para.staleness_bound,
                 agreement_para.QoS_preference,
                 agreement_para.query_weight);
     }

@@ -71,7 +71,8 @@ public class WriteExecutionTimePrediction extends ExecutionTimePrediction
     {
         RWTask task = tasks.get(tasks.size()-1);
         
-        return time_prediction(task);
+        // n updates
+        return time_prediction(task)*tasks.size();
     }
     
 

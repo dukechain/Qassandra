@@ -133,6 +133,10 @@ public class FIT_mechanism extends Chen_JMXConfigurableThreadPoolExecutor
         long staleness = tau + QC_k - read.para_wrapper.staleness_deadline;
         staleness = (staleness > 0)? staleness: 0;
         
+        //...........
+        staleness = (long)(staleness/1000d);
+        //...........
+        
         double alpha_i = read.para_wrapper.QoS_preference;
         double Wi = read.para_wrapper.query_weight;
         
