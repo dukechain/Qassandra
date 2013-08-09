@@ -753,14 +753,15 @@ public class Chen_ThreadPoolExecutor extends ThreadPoolExecutor {
     }
     
     private void executeWrite(Runnable command) {
-        if (poolSize >= corePoolSize || !addIfUnderCorePoolSize(command)) {
+       /* if (poolSize >= corePoolSize || !addIfUnderCorePoolSize(command)) {
             if (runState == RUNNING && writeQueue.offer(command)) {
                 if (runState != RUNNING || poolSize == 0)
                     ensureQueuedWriteTaskHandled(command);
             }
             else if (!addIfUnderMaximumPoolSize(command))
                 reject(command); // is shutdown or saturated
-        }
+        }*/
+        writeQueue.offer(command);
     }
 
     protected void setWritePriority(Chen_MessageDeliveryTask task)
@@ -1572,8 +1573,8 @@ public class Chen_ThreadPoolExecutor extends ThreadPoolExecutor {
         while (addIfUnderCorePoolSize(null))
             ++n;
         
-        Thread t = new Thread(writeMover);
-        t.start();
+        /*Thread t = new Thread(writeMover);
+        t.start();*/
         
         return n;
     }

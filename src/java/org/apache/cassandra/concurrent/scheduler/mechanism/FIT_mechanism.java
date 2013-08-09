@@ -50,18 +50,34 @@ public class FIT_mechanism extends Chen_JMXConfigurableThreadPoolExecutor
                 //remove 
                 List<RWTask> writetask = removeWritesonGivenKey(rc.key);
                 
-                if (writetask != null)
+                if (writetask != null && !writetask.isEmpty())
                 {
                     long st = System.currentTimeMillis();
-                    writetask.get(writetask.size()-1).run();
+                    
+                    for (RWTask rwTask : writetask)
+                    {
+                        rwTask.run();
+                    }
+                    
                     long en = System.currentTimeMillis();
                     
                     rc.para_wrapper.actual_UC_k = en-st;
                 }
                 
-                
+                rc.para_wrapper.first_unapplied_time = Long.MAX_VALUE;
                 rc.para_wrapper.staleness_deadline = Long.MAX_VALUE;
             }
+            else {
+                List<RWTask> writetask = removeWritesonGivenKey(rc.key);
+                
+                if (writetask != null && !writetask.isEmpty())
+                {
+                    rc.para_wrapper.first_unapplied_time =
+                            writetask.get(0).getRowMutation().local_arrival_time;
+                    rc.para_wrapper.setStalenessDeadline();
+                }
+            }
+            
         }
     }
     

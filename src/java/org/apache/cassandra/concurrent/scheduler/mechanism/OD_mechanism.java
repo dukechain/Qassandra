@@ -43,7 +43,14 @@ public class OD_mechanism extends Chen_JMXConfigurableThreadPoolExecutor
                 rc.para_wrapper.first_unapplied_time =
                         writetask.get(0).getRowMutation().local_arrival_time;
                 
-                writetask.get(writetask.size() - 1).run();
+                //writetask.get(writetask.size() - 1).run();
+                
+                for (RWTask rwTask : writetask)
+                {
+                    rwTask.run();
+                }
+                
+                rc.para_wrapper.first_unapplied_time = Long.MAX_VALUE;
             }
         }
     }

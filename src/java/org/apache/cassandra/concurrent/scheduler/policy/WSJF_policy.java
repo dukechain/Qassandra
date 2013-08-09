@@ -20,6 +20,7 @@ public class WSJF_policy implements Policy
         double alpha = read.para_wrapper.QoS_preference;
         double W_i = read.para_wrapper.query_weight;
         
+        read.para_wrapper.setTardinessDeadline();
         
         if (read.para_wrapper.estimated_QC_k == -1)
         {
