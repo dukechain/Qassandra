@@ -136,6 +136,12 @@ public class DatabaseDescriptor
         logger.info("Commit log directory: " + conf.commitlog_directory);
         
         /* chen add*/
+        if (!conf.updatemodel.equals("state-transfer") && 
+                !conf.mechanism_type.equals("operation-transfer"))
+        {
+            throw new ConfigurationException("Error Setting on Update Model");
+        }
+        
         if (!conf.mechanism_type.equals("OD") && !conf.mechanism_type.equals("HOD")
                 && !conf.mechanism_type.equals("FIT"))
         {
@@ -1267,5 +1273,10 @@ public class DatabaseDescriptor
     public static int getConcurrent_pool_size()
     {
         return conf.concurrent_pool_size;
+    }
+    
+    public static String getUpdateModel()
+    {
+        return conf.updatemodel;
     }
 }

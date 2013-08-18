@@ -9,6 +9,7 @@ import org.apache.cassandra.concurrent.scheduler.TPE.Chen_JMXConfigurableThreadP
 import org.apache.cassandra.concurrent.scheduler.mechanism.FIT_mechanism;
 import org.apache.cassandra.concurrent.scheduler.mechanism.HOD_mechanism;
 import org.apache.cassandra.concurrent.scheduler.mechanism.OD_mechanism;
+import org.apache.cassandra.concurrent.scheduler.policy.Density_policy;
 import org.apache.cassandra.concurrent.scheduler.policy.EDF_policy;
 import org.apache.cassandra.concurrent.scheduler.policy.FCFS_policy;
 import org.apache.cassandra.concurrent.scheduler.policy.Policy;
@@ -61,7 +62,8 @@ public class SchedulerFactory
             return new EDF_policy();
         else if (policy_type.equals("WSJF"))
             return new WSJF_policy();
-        
+        else if (policy_type.equals("Density"))
+            return new Density_policy();
         
         return null;
     }

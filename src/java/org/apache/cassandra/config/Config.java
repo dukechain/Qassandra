@@ -182,6 +182,7 @@ public class Config
     public String berkeleyDB_path = null;
     
     public int concurrent_pool_size = 1;
+    public String updatemodel = "state-transfer";
     
 
     public static boolean getOutboundBindAny()

@@ -8,6 +8,7 @@ import org.apache.cassandra.concurrent.NamedThreadFactory;
 import org.apache.cassandra.concurrent.scheduler.RWTask;
 import org.apache.cassandra.concurrent.scheduler.TPE.Chen_JMXConfigurableThreadPoolExecutor;
 import org.apache.cassandra.concurrent.scheduler.policy.Policy;
+import org.apache.cassandra.concurrent.updatemodel.UpdateExecution;
 import org.apache.cassandra.db.ReadCommand;
 import org.apache.cassandra.net.MessagingService;
 
@@ -45,10 +46,11 @@ public class OD_mechanism extends Chen_JMXConfigurableThreadPoolExecutor
                 
                 //writetask.get(writetask.size() - 1).run();
                 
-                for (RWTask rwTask : writetask)
+                /*for (RWTask rwTask : writetask)
                 {
                     rwTask.run();
-                }
+                }*/
+                UpdateExecution.updateexecute(writetask);
                 
                 rc.para_wrapper.first_unapplied_time = Long.MAX_VALUE;
             }
