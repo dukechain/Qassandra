@@ -184,6 +184,8 @@ public class Config
     public int concurrent_pool_size = 1;
     public String updatemodel = "state-transfer";
     
+    public boolean loading_data = false;
+    
 
     public static boolean getOutboundBindAny()
     {

@@ -24,6 +24,7 @@ import java.util.*;
 
 import org.apache.cassandra.concurrent.scheduler.RWTask;
 import org.apache.cassandra.concurrent.scheduler.policy.Policy;
+import org.apache.cassandra.config.DatabaseDescriptor;
 import org.apache.cassandra.db.ReadCommand;
 import org.apache.cassandra.db.RowMutation;
 import org.apache.cassandra.net.Chen_MessageDeliveryTask;
@@ -1573,8 +1574,14 @@ public class Chen_ThreadPoolExecutor extends ThreadPoolExecutor {
         while (addIfUnderCorePoolSize(null))
             ++n;
         
-        /*Thread t = new Thread(writeMover);
-        t.start();*/
+        
+        // valid when loading data
+        if (DatabaseDescriptor.isLoadingData())
+        {
+            Thread t = new Thread(writeMover);
+            t.start();
+        }
+        
         
         return n;
     }

@@ -137,7 +137,7 @@ public class DatabaseDescriptor
         
         /* chen add*/
         if (!conf.updatemodel.equals("state-transfer") && 
-                !conf.mechanism_type.equals("operation-transfer"))
+                !conf.updatemodel.equals("operation-transfer"))
         {
             throw new ConfigurationException("Error Setting on Update Model");
         }
@@ -1278,5 +1278,10 @@ public class DatabaseDescriptor
     public static String getUpdateModel()
     {
         return conf.updatemodel;
+    }
+    
+    public static boolean isLoadingData()
+    {
+        return conf.loading_data;
     }
 }
