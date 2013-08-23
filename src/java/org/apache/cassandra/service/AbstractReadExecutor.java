@@ -92,12 +92,13 @@ public abstract class AbstractReadExecutor
             logger.trace("reading data from {}", dataPoint);
             MessagingService.instance().sendRR(command.createMessage(), dataPoint, handler);
         }
-
+        
         if (handler.endpoints.size() == 1)
             return;
 
         // send the other endpoints a digest request
-        ReadCommand digestCommand = command.copy();
+        ReadCommand digestCommand = command.copyWithPara();
+        //ReadCommand digestCommand = command.copy();
         digestCommand.setDigestQuery(true);
         MessageOut<?> message = null;
         for (int i = 1; i < handler.endpoints.size(); i++)

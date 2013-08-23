@@ -737,7 +737,8 @@ public final class MessagingService implements MessagingServiceMBean
         
         if ((message.getMessageType().equals(Stage.READ)||
                 message.getMessageType().equals(Stage.MUTATION))
-                &&IsUserOperation.isUserMessage(message))
+                &&IsUserOperation.isUserMessage(message)
+                &&!DatabaseDescriptor.isLoadingData())
         {
             /*if(message.payload instanceof ReadCommand)
             {

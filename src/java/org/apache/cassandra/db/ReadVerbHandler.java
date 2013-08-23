@@ -81,12 +81,20 @@ public class ReadVerbHandler implements IVerbHandler<ReadCommand>
         {
             if (logger.isTraceEnabled())
                 logger.trace("digest is " + ByteBufferUtil.bytesToHex(ColumnFamily.digest(row.cf)));
-            return new ReadResponse(ColumnFamily.digest(row.cf));
+            //return new ReadResponse(ColumnFamily.digest(row.cf));
+            // chen modify
+            
+            ReadResponse res = new ReadResponse(ColumnFamily.digest(row.cf));
+            
+            res.para_wrapper = command.para_wrapper;
+            
+            return res;
+            
         }
         else
         {
             ReadResponse res = new ReadResponse(row);
-            
+            // chen add
             res.para_wrapper = command.para_wrapper;
             
             return res;

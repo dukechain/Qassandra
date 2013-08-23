@@ -13,6 +13,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadFactory;
@@ -383,11 +384,11 @@ public class Chen_ThreadPoolExecutor extends ThreadPoolExecutor {
     private final BlockingQueue<Runnable> workQueue;
     
     //chen add
-    protected final BlockingQueue<Runnable> writeQueue;
+    //protected final BlockingQueue<Runnable> writeQueue;
     
     //chen add
-    private final ConcurrentHashMap<ByteBuffer, Runnable> writeHashMap = 
-            new ConcurrentHashMap<ByteBuffer, Runnable>();
+    private final ConcurrentHashMap<ByteBuffer, BlockingQueue<Runnable>> writeHashMap = 
+            new ConcurrentHashMap<ByteBuffer, BlockingQueue<Runnable>>();
     
     protected final Policy priority_calculate;
     
@@ -640,7 +641,7 @@ public class Chen_ThreadPoolExecutor extends ThreadPoolExecutor {
         this.threadFactory = threadFactory;
         this.handler = handler;
         
-        this.writeQueue = writeQueue;
+        //this.writeQueue = writeQueue;
         this.priority_calculate = priority_calculate;
     }
 
@@ -735,7 +736,9 @@ public class Chen_ThreadPoolExecutor extends ThreadPoolExecutor {
                 task.getRowMutation().local_arrival_time = System.currentTimeMillis();
                 
                 task.setPriority(Double.MAX_VALUE);
-                executeWrite(command);
+                //executeWrite(command);
+                // chen 23/08/2013
+                executeWrite(task);
             }
             
         }
@@ -753,17 +756,40 @@ public class Chen_ThreadPoolExecutor extends ThreadPoolExecutor {
         }
     }
     
-    private void executeWrite(Runnable command) {
-       /* if (poolSize >= corePoolSize || !addIfUnderCorePoolSize(command)) {
+    private void executeWrite(RWTask write)
+    {
+        ByteBuffer key = write.getRowMutation().key();
+        
+        BlockingQueue<Runnable> pendingQueue = writeHashMap.remove(key);
+        
+        if (pendingQueue == null)
+        {
+            pendingQueue = new LinkedBlockingQueue<Runnable>();
+        }
+
+        try
+        {
+            pendingQueue.put(write);
+        }
+        catch (InterruptedException e)
+        {
+            e.printStackTrace();
+        } 
+        
+        writeHashMap.put(key, pendingQueue);
+    }
+    
+    /*private void executeWrite(Runnable command) {
+        if (poolSize >= corePoolSize || !addIfUnderCorePoolSize(command)) {
             if (runState == RUNNING && writeQueue.offer(command)) {
                 if (runState != RUNNING || poolSize == 0)
                     ensureQueuedWriteTaskHandled(command);
             }
             else if (!addIfUnderMaximumPoolSize(command))
                 reject(command); // is shutdown or saturated
-        }*/
-        writeQueue.offer(command);
-    }
+        }
+        //writeQueue.offer(command);
+    }*/
 
     protected void setWritePriority(Chen_MessageDeliveryTask task)
     {
@@ -874,7 +900,7 @@ public class Chen_ThreadPoolExecutor extends ThreadPoolExecutor {
     }
     
     private void ensureQueuedWriteTaskHandled(Runnable command) {
-        final ReentrantLock mainLock = this.mainLock;
+        /*final ReentrantLock mainLock = this.mainLock;
         mainLock.lock();
         boolean reject = false;
         Thread t = null;
@@ -892,7 +918,7 @@ public class Chen_ThreadPoolExecutor extends ThreadPoolExecutor {
         if (reject)
             reject(command);
         else if (t != null)
-            t.start();
+            t.start();*/
     }
 
     /**
@@ -912,7 +938,7 @@ public class Chen_ThreadPoolExecutor extends ThreadPoolExecutor {
         {
             while (true)
             {
-                if (workQueue.isEmpty())
+                /*if (workQueue.isEmpty())
                 {
                     Runnable r;
                     try
@@ -930,7 +956,7 @@ public class Chen_ThreadPoolExecutor extends ThreadPoolExecutor {
                     }
                     
                     
-                }
+                }*/
             }
             
         }
@@ -1722,15 +1748,15 @@ public class Chen_ThreadPoolExecutor extends ThreadPoolExecutor {
     }
     
     // chen add
-    public BlockingQueue<Runnable> getwriteQueue() {
+   /* public BlockingQueue<Runnable> getwriteQueue() {
         return writeQueue;
-    }
+    }*/
     
     // chen add
     protected List<RWTask> removeWritesonGivenKey(ByteBuffer key) {
         List<RWTask> writes = new ArrayList<RWTask>();
         
-        for (Runnable r: writeQueue)
+        /*for (Runnable r: writeQueue)
         {
             RWTask task = (RWTask) r;
             
@@ -1740,6 +1766,16 @@ public class Chen_ThreadPoolExecutor extends ThreadPoolExecutor {
                 writes.add((RWTask)r);
                 
                 writeQueue.remove(r); /////
+            }
+        }*/
+        
+        BlockingQueue<Runnable> writesonkey = writeHashMap.remove(key);
+        
+        if (writesonkey != null)
+        {
+            for (Runnable r: writesonkey)
+            {            
+                writes.add((RWTask)r);
             }
         }
         
@@ -1763,7 +1799,7 @@ public class Chen_ThreadPoolExecutor extends ThreadPoolExecutor {
     protected List<RWTask> getWritesonGivenKey(ByteBuffer key) {
         List<RWTask> writes = new ArrayList<RWTask>();
         
-        //Runnable write = null;
+        /*//Runnable write = null;
         
         for (Runnable r: writeQueue)
         {
@@ -1776,7 +1812,18 @@ public class Chen_ThreadPoolExecutor extends ThreadPoolExecutor {
                 
                 //writeQueue.remove(r);
             }
+        }*/
+        
+        BlockingQueue<Runnable> writesonkey = writeHashMap.get(key);
+        
+        if (writesonkey != null)
+        {
+            for (Runnable r: writesonkey)
+            {            
+                writes.add((RWTask)r);
+            }
         }
+        
         
         return writes;
     }

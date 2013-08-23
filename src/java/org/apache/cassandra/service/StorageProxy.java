@@ -901,7 +901,7 @@ public class StorageProxy implements StorageProxyMBean
         };
         
         // chen modify the stage type
-        if (IsUserOperation.isUserRowMutation(rm))
+        if (IsUserOperation.isUserRowMutation(rm)&&!DatabaseDescriptor.isLoadingData())
         {
             StageManager.getStage(Stage.READ_MUTATION).execute(runnable);
         }
@@ -1215,10 +1215,6 @@ public class StorageProxy implements StorageProxyMBean
                     for (InetAddress endpoint : exec.handler.endpoints)
                         MessagingService.instance().sendRR(message, endpoint, repairHandler);
                 }
-                catch (Exception e) {
-                    logger.error("here", e);
-                }
-                
             }
 
             if (commandsToRetry != Collections.EMPTY_LIST)

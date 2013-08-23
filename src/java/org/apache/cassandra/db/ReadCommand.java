@@ -125,6 +125,14 @@ public abstract class ReadCommand implements IReadCommand
     {
         return cfName;
     }
+    
+    public ReadCommand copyWithPara()
+    {
+        ReadCommand rc = copy();
+        rc.para_wrapper = this.para_wrapper;
+        
+        return rc;
+    }
 
     public abstract ReadCommand copy();
 
